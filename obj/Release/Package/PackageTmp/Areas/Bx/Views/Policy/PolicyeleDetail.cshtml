@@ -1,0 +1,147 @@
+﻿
+@model Bx_Core.PolicyEle
+@using Bx_Core
+
+@{
+    ViewBag.Title = "PolicyeleDetail";
+    Layout = null;
+}
+
+<link type="text/css" rel="stylesheet" href="~/css/common.css" />
+<link type="text/css" rel="stylesheet" href="~/css/index.css" />
+<style type="text/css">
+    
+	.maskBox{
+		position: absolute;
+		z-index: 100;
+		top:-41px;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0,0,0,0.5);
+		display: none;
+	}
+	.maskBox img{
+		width: 80%;
+		margin: 80px auto;
+		display: none;
+	}
+	.upimg-div .up-section {
+		width: 192px;
+		height: 182px;
+		border: 1px solid #e0e0e0;
+	}
+	.up-section:hover {
+		border: 1px solid #e0e0e0;
+	}
+	.z_photo .up-section {
+		position: relative;
+		margin: 12px;
+	}
+	.z_photo .z_file {
+		position: relative;
+		margin: 12px;
+	}
+	.title{
+		margin-bottom: 26px;
+		font-size: 18px;
+	}
+	.picBox{
+		margin-bottom: 40px;
+	}
+</style>
+
+<!--投保回单详情-->
+@if (null != ViewBag.PolicyEleList) {
+<p class="title">投保回单：</p>
+<div class="picBox">
+    <div class="img-box full" style="">
+        <section class=" img-section">
+            <div class="z_photo upimg-div clear">
+                <!-- 图片渲染部分 -->
+              
+                   @foreach(PolicyEle item in ViewBag.PolicyEleList as List<PolicyEle>) { 
+                    
+					<section class="fl up-section">
+						<!-- <input type="file" name="" class="PolicyPic" style="display: none;" value="" accept="application/pdf,image/*"> -->
+						<!-- <span class="up-span"></span> -->
+						<!-- <img class="close-upimg" src="../../../images/a7.png"> -->
+						<a class="up-img_a" href="@item.FilePathName.Substring(1)" target="view_window">
+							<!--后端的注意： pdf文件的用下面的图片；不是pdf文件的用下面的src路径要渲染出来-->
+							<img class="up-img" src="@item.FilePathName.Substring(1)" style="width: 190px; height: 180px;">
+						</a>
+					</section>
+                   }
+               
+                <!-- //////////////////// -->
+            </div>
+        </section>
+    </div>
+</div>
+}
+
+<!--变更回单详情-->
+<!--...........................渲染开始.........................-->
+@if (null!=ViewBag.PolicyChangedAnnexByBx)
+{
+    
+
+
+	<p class="title">变更回单：</p>
+	<div class="picBox">
+	    <div class="img-box full" style="">
+	        <section class=" img-section">
+	            <div class="z_photo upimg-div clear">
+	                <!-- 图片渲染部分 -->
+	                @foreach (PolicyChangedAnnexByBx item in ViewBag.PolicyChangedAnnexByBx as List<PolicyChangedAnnexByBx>)
+    {
+    <section class="fl up-section">
+        <!-- <input type="file" name="" class="PolicyPic" style="display: none;" value="" accept="application/pdf,image/*"> -->
+        <!-- <span class="up-span"></span> -->
+        <!-- <img class="close-upimg" src="../../../images/a7.png"> -->
+        <a class="up-img_a" href="@item.FilePathName.Substring(1)" target="view_window">
+            <!--后端的注意： pdf文件的用下面的图片；不是pdf文件的用下面的src路径要渲染出来-->
+            <img class="up-img" src="@item.FilePathName.Substring(1)" style="width: 190px; height: 180px;">
+        </a>
+    </section>
+    }
+    <!-- //////////////////// -->
+</div>
+	        </section>
+	    </div>
+	</div>
+}
+<!--...........................渲染结束.........................-->
+<script>
+    $(function(){
+        for(var i=0;i<$('.up-img').length;i++){
+			var imgUrl = $('.up-img').eq(i).attr('src');
+			var file_Type = imgUrl.substr(imgUrl.indexOf("."));
+			//pdf文件 
+			if(file_Type=='.pdf' || file_Type=='.PDF'){
+				$('.up-img').eq(i).attr('src','../../images/pdflogo.jpg');
+			}
+		};
+    });
+	/*
+	$(function(){
+        $(".up-img").on("click",function(){
+			var img_src = $(this).attr('src');
+			$(".maskBox").css("height",$(".modal-dialog").height());
+			$(".maskBox").show().append('<img src="'+img_src+'">');
+			$(".maskBox img").show();
+		});
+		$(".maskBox").on("click",function(){
+			$(this).html("").hide();
+		});
+    });
+	
+	*/
+</script>
+
+
+
+
+

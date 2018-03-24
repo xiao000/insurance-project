@@ -1,0 +1,467 @@
+﻿
+@{
+   ViewBag.Title = "终端用户列表";
+   Layout = "~/Areas/CustomerService/Views/Shared/_CustomerService.cshtml"; 
+}
+<style>
+	.numcolor{
+		color: #FEA007;
+	}
+</style>
+    		<!--ins_fullcontent start-->
+		<div class="ins_rightmian ins_fullcontent" id="ins_rightmain">
+			<div class="ins_rightcontent">
+				<div class="content_timetoggle content_toptitle">
+					终端用户列表
+				</div>
+				<div class="content_main">
+					<!--<div id="financetoolbar" class="btn-group">
+	            			<button id="btn_add" type="button" class="commonbtn smallbtn" style="margin-right: 15px;">
+	                			新增
+	            			</button>
+	            			<select class="form-control">
+				                <option value="">当前</option>
+				                <option value="all">所有</option>
+				                <option value="selected">选择</option>
+				            </select>
+	        		</div>-->
+			        <table id="FinanceUsers">
+					</table>
+				</div>
+			</div>
+		</div>
+		<!--ins_fullcontent end-->
+
+<script type="text/javascript">			
+$(function() {
+	//主要内容高度
+	$head=$("#ins_header").height()+30;
+	$rightmain=$(window).height()-$head-30;
+	$("#ins_rightmain").css("min-height",$rightmain+"px");
+	$tablebox=$(".content_timetoggle").height();
+	$btable=$rightmain-$tablebox;
+	$(".bootstrap-table").css("min-height",$btable+"px");
+	
+	$(window).resize(function(){
+		//主要内容高度
+		$head=$("#ins_header").height()+30;
+		$rightmain=$(window).height()-$head-30;
+		$("#ins_rightmain").css("min-height",$rightmain+"px");
+		$tablebox=$(".content_timetoggle").height();
+		$btable=$rightmain-$tablebox;
+		$(".bootstrap-table").css("min-height",$btable+"px");
+	});
+	
+	$('#FinanceUsers').bootstrapTable({	  
+	    url: '/CustomerService/customer/list',
+	    method: 'post', //请求方式（*）
+		toolbar: '#financetoolbar', //工具按钮用哪个容器
+		striped: true, //是否显示行间隔色
+		cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+		pagination: true, //是否显示分页（*）
+		sortable: true, //是否启用排序
+		sortOrder: "desc", //排序方式
+		queryParams:queryParams,//传递参数（*）
+		sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+		pageNumber: 1, //初始化加载第一页，默认第一页
+		pageSize: 10, //每页的记录行数（*）
+		//queryParamsType: "limit",
+		sortable: true, //是否启用排序 
+		pageList: [10, 25, 50, 100,'all'], //可供选择的每页的行数（*）
+		search: true, //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+		//locale: "zh-CN",
+		strictSearch: true,
+		showColumns: true, //是否显示所有的列
+		//showRefresh: true,                  //是否显示刷新按钮
+		minimumCountColumns: 2, //最少允许的列数
+		clickToSelect: false, //是否启用点击选中行
+		uniqueId: "CustomerID",                     //每一行的唯一标识，一般为主键列
+		showToggle: false, //是否显示详细视图和列表视图的切换按钮
+		cardView: false, //是否显示详细视图
+		detailView: false, //是否显示父子表
+		//height: $th, //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+		showExport: true,
+		exportDataType: 'all',
+		//idField: "id",
+		exportTypes: ['excel'],
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		searchAlign: "left",
+		buttonsAlign: "right",
+		toolbarAlign: "right",
+		columns: [{
+				checkbox: true
+			},
+			{
+				field: "id",
+				title: "序号",
+				align: "center",
+				valign: "middle",
+				sortable: "true",
+				formatter: function (value, row, index) {
+                    var pageSize = $('#FinanceUsers').bootstrapTable('getOptions').pageSize;//通过表的#id 可以得到每页多少条
+                    var pageNumber = $('#FinanceUsers').bootstrapTable('getOptions').pageNumber;//通过表的#id 可以得到当前第几页
+                    /*console.log("pageSize2="+pageSize+",pageNumber2="+pageNumber);*/
+                    if(pageSize!='All'){
+                    	return pageSize * (pageNumber - 1) + index + 1;    //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
+                    }else{
+                    	return index+1;
+                    }
+                    
+                }
+			},
+			{
+				field: "username",
+				title: "登录账户",
+				align: "center",
+				valign: "middle",
+				formatter: function (value) {
+				    return "<a href='#' class='totalinfo' data-operation='totalinfouser' data-value='" + value + "' style='color: #6d7bfc;'>"+value+"</a>";
+				}
+			},
+			{
+				field: "CorporateName",
+				title: "公司名称",
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: "Area",
+				title: "区域",
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: "Contacts",
+				title: "联系人",
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: "Phone",
+				title: "手机号码",
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: "Email",
+				title: "邮件地址",
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: "CreateDateTime",
+				title: "注册时间",
+				align: "center",
+				valign: "middle",
+				sortable: "true",
+				formatter: function(value){
+					var str=value.replace("/Date(","");
+					var txt=str.replace(")/","");
+					return new Date(parseInt(txt)).toLocaleString(); 
+				}
+			},
+			{
+				field: "AllPolicyCount",
+				title: "保单总数",
+				align: "right",
+				valign: "middle",
+				sortable: "true",
+				formatter: function (value) {
+                    var source = String(value).split(".");//按小数点分成2部分
+					source[0] = source[0].replace(new RegExp('(\\d)(?=(\\d{3})+$)', 'ig'), "$1,");//只将整数部分进行都好分割
+					return "<span class='redcolor'>" +source.join(".")+ "</span>";//再将小数部分合并进来 
+                }
+				
+			},
+			{
+				field: "AllAcceptPolicyCount",
+				title: "已生效保单总数",
+				align: "right",
+				valign: "middle",
+				sortable: "true",
+				formatter: function (value) {
+                    var source = String(value).split(".");//按小数点分成2部分
+					source[0] = source[0].replace(new RegExp('(\\d)(?=(\\d{3})+$)', 'ig'), "$1,");//只将整数部分进行都好分割
+					return "<span class='redcolor'>" +source.join(".")+ "</span>";//再将小数部分合并进来 
+                }
+			},
+			{
+			    field: "Recharge",
+				title: "余额/元",
+				align: "right",
+				valign: "middle",
+				sortable: "true",
+				formatter: function(value){
+					var source = String(value).split(".");//按小数点分成2部分
+					source[0] = source[0].replace(new RegExp('(\\d)(?=(\\d{3})+$)', 'ig'), "$1,");//只将整数部分进行都好分割
+					return "<span class='redcolor'>" +source.join(".")+ "</span>";//再将小数部分合并进来 
+				}
+			},
+            {
+                field: "AllPayAmount",
+                title: "缴费总额/元",
+                align: "right",
+                valign: "middle",
+                sortable: "true",
+                formatter: function (value) {
+                	var source = String(value).split(".");//按小数点分成2部分
+					source[0] = source[0].replace(new RegExp('(\\d)(?=(\\d{3})+$)', 'ig'), "$1,");//只将整数部分进行都好分割
+					return "<span class='redcolor'>" +source.join(".")+ "</span>";//再将小数部分合并进来 
+                }
+            },
+            {
+                field: "AllBxAmount",
+                title: "总保额/万元",
+                align: "right",
+                valign: "middle",
+                sortable: "true",
+                formatter: function (value) {
+                    var source = String(value).split(".");//按小数点分成2部分
+					source[0] = source[0].replace(new RegExp('(\\d)(?=(\\d{3})+$)', 'ig'), "$1,");//只将整数部分进行都好分割
+					return "<span class='redcolor'>" +source.join(".")+ "</span>";//再将小数部分合并进来 
+                }
+            },
+			{
+				field: "CustomerID",
+				title: "操作",
+				align: "center",
+				valign: "middle",
+				formatter: function(value) {
+					return "<button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'><button class='glyphicon glyphicon-folder-open opeicon' data-operation='rechargelist' data-value='" + value + "' title='账号明细'></button>"
+				}
+			}
+		],
+		
+		onPageChange: function(size, number) {
+			//$("#pageSizeInput").val(size);
+			//$("#pageNumberInput").val(number);
+
+			//var form = $('#tableForm');
+			//form.action= '${base}/showReport';
+			//form.submit();
+		},
+		//onSort: function (name, order) {
+		// },
+		//formatShowingRows: function (pageFrom, pageTo, totalRows) {
+		//	return '';
+		// },
+		//formatRecordsPerPage: function () {
+		//	return '';
+		//  },
+		formatNoMatches: function() {
+			return 'error';
+		},
+
+		onLoadSuccess: function() {
+			//详情按钮	
+			$("button[data-operation='detailusers']").click(function() {
+				var id = $(this).attr("data-value");
+				var addDialog = new BootstrapDialog({
+					title: "终端用户信息详情",
+					message: function(dialog) {
+
+						var $message = $('<div></div>');
+						var pageToLoad = dialog.getData('pageToLoad');
+						$message.load(pageToLoad);
+
+						return $message;
+					},
+					data: {
+					    'pageToLoad': '@Url.Action("detail", "customer", new {area="CustomerService" })'+'/'+id
+					},
+					buttons: [{
+						icon: "glyphicon glyphicon-remove",
+						label: "关闭",
+						action: function(dialogItself) {
+							dialogItself.close();
+						}
+					}]
+				});
+				addDialog.open();				
+			});
+			
+			//充值按钮
+			/*$("button[data-operation='recharge']").click(function() {
+				var id = $(this).attr("data-value");
+				var rechargeDialog = new BootstrapDialog({
+					title: "充值金额",
+					message: function(dialog) {
+						var $message = $('<div></div>');
+						var pageToLoad = dialog.getData('pageToLoad');
+						$message.load(pageToLoad);
+						return $message;
+					},
+					data: {
+					    'pageToLoad': '@Url.Action("Save", "ReCharge", new {area="AdminFinance"})'+'/'+id
+					},
+					buttons: [{
+						label: "确定",
+						action: function(dialogItself) {
+							BootstrapDialog.confirm("你确定要充值" + $(this).parent().parent().find("td").eq(2).text() + "吗？", function(result) {
+//								var time = null;//定义setTimeout执行方法
+//								    clearTimeout(time);// 取消上次延时未执行的方法//执行延时
+//								    time = setTimeout(function(){//do function在此处写单击事件要执行的代码
+//								    	console.log("ok")
+								        if(result) {
+										    $.post($("#FinanceSaverecharge").attr("action"), $("#FinanceSaverecharge").serializeArray(), function(data) {
+												if(data.Status == 1) {
+													BootstrapDialog.show({
+														message: "充值成功",
+														buttons: [{
+															icon: "glyphicon glyphicon-ok",
+															label: "确定",
+															action: function(dialogItself) {
+																dialogItself.close();
+																rechargeDialog.close();
+																$('#FinanceUsers').bootstrapTable("refresh");
+															}
+														}]
+													});
+												}else{
+													BootstrapDialog.show({
+														type : BootstrapDialog.TYPE_DANGER,
+														size : BootstrapDialog.SIZE_SMALL,//size为小，默认的对话框比较宽
+														title : '错误 ',
+														message: "错误，充值次数太频繁",
+														
+														buttons: [{
+															icon: "glyphicon glyphicon-remove",
+															label: "关闭",
+															cssClass: 'btn-danger',
+															action: function(dialogItself) {
+																dialogItself.close();
+																rechargeDialog.close();
+																$('#FinanceUsers').bootstrapTable("refresh");
+															}
+														}]
+													});
+												}
+											});
+										}
+								    //},500);
+							});
+						}
+					},{
+						label: "取消",
+						action: function(dialogItself) {
+							dialogItself.close();
+							rechargeDialog.close();
+							$('#FinanceUsers').bootstrapTable("refresh");
+						}
+					}]
+				});
+				rechargeDialog.open();
+//				$('#FinanceUsers').bootstrapTable("refresh");//刷新页面
+			});*/
+			
+			//账号明细按钮
+			$("button[data-operation='rechargelist']").click(function() {
+				var id = $(this).attr("data-value");
+				
+				var rechargeDialog = new BootstrapDialog({
+					title: "账号明细",
+					message: function(dialog) {
+						var $message = $('<div></div>');
+						var pageToLoad = dialog.getData('pageToLoad');
+						$message.load(pageToLoad);
+						console.log($message)
+						console.log(pageToLoad)
+						return $message;
+					},
+					data: {
+					    'pageToLoad': '@Url.Action("GetDetail", "ReCharge", new {area="CustomerService"})'+'/'+id
+					},
+					buttons: [{
+						icon: "glyphicon glyphicon-remove",
+						label: "关闭",
+						action: function(dialogItself) {
+							dialogItself.close();
+						}
+					}]
+				});
+				rechargeDialog.open();
+			});
+			//点击弹出具体信息
+			/*$("a[data-operation='totalinfouser']").click(function() {
+				var username = $(this).attr("data-value");
+				var tinfoDialog = new BootstrapDialog({
+					title: "具体信息",
+					closable: false,
+					message: function(dialog) {
+
+						var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+						var pageToLoad = dialog.getData('pageToLoad');
+						$message.load(pageToLoad);
+
+						return $message;
+					},
+					data: {
+						'pageToLoad': '@Url.Action("PolicyList","Customer", new {area="AdminFinance" })'+'?username='+username
+					},
+					buttons: [{
+	                    icon: "glyphicon glyphicon-remove",
+	                    label: "关闭",
+	                    action: function (dialogItself) {
+	                    	$('#FinanceUsers').bootstrapTable("refresh");
+	                        dialogItself.close();
+	                        tinfoDialog.close();
+	                    }
+	                }]
+				});
+				tinfoDialog.open();
+			});*/
+		}
+	});
+
+	$(window).resize(function() {
+		$('#FinanceUsers').bootstrapTable('resetView');
+	});
+
+});
+Date.prototype.toLocaleString = function() {
+	return this.getFullYear() + "-" + (this.getMonth() + 1) + "-" + this.getDate() + " " + this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds();
+}; 
+function getIdSelections() {
+	return $.map($('#FinanceUsers').bootstrapTable('getSelections'), function(row) {
+		return row.id
+	});
+}
+//得到查询的参数
+queryParams = function (params) {
+    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        //limit: params.pageSize,   //页面大小
+        //offset: params.pageNumber,  //页码
+        limit: params.limit,
+        pageNumber:(params.offset / params.limit) + 1,
+        search: params.search,
+        sortname: params.sort,
+        order: params.order
+    };
+    return temp;
+};
+
+function responseHandler(res) {
+	$.each(res.rows, function(i, row) {
+		row.state = $.inArray(row.id, selections) !== -1;
+	});
+	return res;
+}
+
+function detailFormatter(index, row) {
+	var html = [];
+	$.each(row, function(key, value) {
+		html.push('<p><b>' + key + ':</b> ' + value + '</p>');
+	});
+	return html.join('');
+}
+
+$(function () {
+    $('#financetoolbar select').change(function () {
+        $('#FinanceUsers').bootstrapTable("refresh",function(){
+        	alert(123);
+            exportDataType: $("#financetoolbar select").val()
+        });
+    });
+})
+</script>
+

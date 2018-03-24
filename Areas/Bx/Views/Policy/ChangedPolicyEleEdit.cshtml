@@ -1,0 +1,347 @@
+﻿@using Bx_Core;
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ChangedPolicyEleEdit</title>
+    <link type="text/css" rel="stylesheet" href="~/css/common.css" />
+    <link type="text/css" rel="stylesheet" href="~/css/index.css" />
+    <style type="text/css">
+        .modal-dialog{
+            width: 1000px;
+        }
+        .imgBtn{
+            position: absolute;
+            top: 6px;
+            right: 40px;
+            display: none;
+            z-index: 10;
+        }
+        .up-section:hover .imgBtn{
+            display: block;
+        }
+        .maskBox{
+            position: absolute;
+            z-index: 100;
+            top:-41px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+        }
+        .maskBox img{
+            width: 80%;
+            margin: 80px auto;
+            display: block;
+        }
+        #remarkbox{
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+        }
+        .text{
+            margin: 30px 0;
+            font-size: 14px;
+            color: red;
+        }
+        .upimg-div .up-section {
+            width: 192px;
+            height: 182px;
+            border: 1px solid #e0e0e0;
+        }
+        .up-section:hover {
+            border: 1px solid #e0e0e0;
+        }
+        .z_photo .up-section {
+            position: relative;
+            margin: 12px;
+        }
+        .z_photo .z_file {
+            position: relative;
+            margin: 12px;
+        }
+        
+		.ChangedPolicyEle_add .title{
+			margin-bottom: 26px;
+			font-size: 18px;
+		}
+		.picBox{
+			margin-bottom: 40px;
+		}
+    </style> 
+    <script type="text/javascript">		
+        function OnSuccess(data) {
+            if(data.Status) {
+                var BootstrapDialog1=new BootstrapDialog({
+                    title:"提示",
+                    message: data.Message,
+                    buttons: [{
+                        icon: "glyphicon glyphicon-remove",
+                        label: "关闭",
+                        action: function(dialogItself) {
+                            dialogItself.close();
+                            window.location.href = data.Url;
+                        }
+                    }]
+                });
+                BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+                BootstrapDialog1.open();					
+            } else {
+                var BootstrapDialog2=new BootstrapDialog({
+                    title:"提示",
+                    message: data.Message,
+                    buttons: [{
+                        icon: "glyphicon glyphicon-remove",
+                        label: "关闭",
+                        cssClass:"btn-danger",
+                        action: function(dialogItself) {
+                            dialogItself.close();
+                        }
+                    }]
+                });
+                BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+                BootstrapDialog2.open();					
+            }
+        }
+        function OnFailure() {
+            var BootstrapDialog0=new BootstrapDialog({
+                title:"提示",
+                message: "Connection error",
+                buttons: [{
+                        icon: "glyphicon glyphicon-remove",
+                        label: "关闭",
+                        cssClass:"btn-danger",
+                        action: function(dialogItself) {
+                            dialogItself.close();
+                        }
+                    }]
+            });
+            BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+            BootstrapDialog0.open();
+        }
+    </script>
+</head>
+<body>
+    <div class="register-content ChangedPolicyEleEdit_add" >
+        @using (Ajax.BeginForm("ChangedPolicyeleEdit", "Policy", new AjaxOptions { Url = Url.Action("ChangedPolicyeleEdit", "Policy", new { area = "BX" }), OnSuccess = "OnSuccess", OnFailure = "OnFailure" }, new { @id="bxpolicyeleedit"}))
+        {
+            if (null != ViewBag.policyEleList)
+        {
+            
+        <p>保单回单：</p>
+        <div class="picBox">
+            <div class="img-box full" style="">
+                <section class=" img-section">
+                    <div class="z_photo upimg-div clear">
+                        <!-- 文件渲染部分 -->
+                        @foreach (PolicyEle item in ViewBag.policyEleList as List<PolicyEle>)
+                        {
+                            <section class="up-section fl">
+                                <a class="up-img_a" href="@item.FilePathName.Substring(1)" target="view_window">
+                                    <img class="up-img" src="@item.FilePathName.Substring(1)">
+                                </a>
+                            </section>
+                        }
+                        <!-- //////////////////// -->
+                    </div>
+                </section>
+            </div>
+        </div>
+        }
+            if (null != ViewBag.PolicyChangedAnnexByBx)
+            {
+                <p>变更保单回单：</p>
+                <div class="picBox_add">
+                    <div class="img-box full">
+                        <section class="img-section">
+                            <div class="z_photo upimg-div clear">
+                                <!-- 每一文件渲染一个下面框住的域 -->
+                                <!-- ///////////////////////////////////////////// -->
+                                @foreach (PolicyChangedAnnexByBx v in (ViewBag.PolicyChangedAnnexByBx as List<PolicyChangedAnnexByBx>))
+                                {
+                                    <section class="fl up-section">
+                                        <input type="text" class="PolicyEle_id" style="display: none;" value="@v.PolicyChangedAnnexByBxId" />
+                                        <span class="up-span"></span>
+
+                                        <a class="up-img_a" href="@v.FilePathName.Substring(1)" target="view_window">
+                                            <img class="imgBtn" src="../../images/a8.png">
+                                        </a>
+                                        <img class="close-upimg" src="../../../images/a7.png">
+                                        <!--后端的注意： pdf文件的用下面的图片；不是pdf文件的用下面的src路径要渲染出来-->
+                                        <!-- <img class="up-img" src="../../images/pdflogo.jpg" style="width: 190px; height: 180px;"> -->
+                                        <img class="up-img" src="@v.FilePathName.Substring(1)" style="width: 190px; height: 180px;">
+                                    </section>
+                                }
+
+                                <!-- ///////////////////////////////////////////// -->
+                                <section class="file_box ">
+                                    <input type="file" name="file" class="PolicyPic file_edit" style="display: none;" value="" accept="application/pdf,image/*" />
+                                </section>
+                                <section class="z_file fl">
+                                    <img src="~/images/a11.png" class="add-img img_edit">
+                                </section>
+                            </div>
+                        </section>
+                    </div>
+                    <aside class="mask works-mask">
+                        <div class="mask-content">
+                            <p class="del-p">您确定要删除文件吗？</p>
+                            <p class="check-p"><span class="del-com wsdel-ok">确定</span><span class="wsdel-no">取消</span></p>
+                        </div>
+                    </aside>
+                </div>
+            }
+        }
+    </div>
+    <div class="maskBox"></div>
+
+    <script type="text/javascript">
+    //file_edit
+        $(function(){
+            for(var i=0;i<$('.up-img').length;i++){
+                var imgUrl = $('.up-img').eq(i).attr('src');
+                var file_Type = imgUrl.substr(imgUrl.indexOf("."));
+                //pdf文件 
+                if(file_Type=='.pdf' || file_Type=='.PDF'){
+                    $('.up-img').eq(i).attr('src','../../images/pdflogo.jpg');
+                }
+            };
+            $('.z_file .img_edit').click(function(){
+                $('.file_edit').outerHTML;
+                $('.file_edit').val('');
+                console.log($('.file_box .img_edit').length);
+                $('.file_edit').trigger("click");
+            });
+            var z_fileText = '<section class="file_box">'
+                                +'<input type="file" name="file" class="PolicyPic file_edit" style="display: none;" value="" accept="application/pdf,image/*"/>'
+                            +'</section>';
+            //
+            $(document).on('change','.file_box .file_edit',function(e){
+                console.log('length='+$(this).length);
+                
+                var data = $(this).val();
+                var fileType = data.substr(data.indexOf("."));
+                console.log('data='+data+';fileType='+fileType);
+                var name = e.currentTarget.files[0];
+                var nameURL = window.URL.createObjectURL(name);
+                console.log('name='+name);
+                console.log(window.URL.createObjectURL(name));
+
+                $(this).parent(".file_box").removeClass("file_box").addClass("up-section fl loading");
+                //$(this).siblings('.add-img').remove();
+                var $span = $("<span class='up-span'>");
+                    $span.appendTo(".loading");
+                //删除 
+                var $img0 = $("<img class='close-upimg'>").on("click",function(event){
+                    $(".wsdel-ok").attr("PolicyEle_id",'');
+                    $(".wsdel-ok").attr("px",$(this).parent(".up-section").index());
+                    event.preventDefault();
+                    event.stopPropagation();
+                    $(".works-mask").show();
+                    delParent = $(this).parent();
+                    
+                }); 
+                /////////////////////////////////////////////////////////////////////
+                
+                var $imgBtn0 ='<a class="up-img_a" href="'+nameURL+'" target="view_window">'
+                                +'<img class="imgBtn" src="../../images/a8.png">'
+                            +'</a>';
+                $(".loading").append($imgBtn0);
+                /////////////////////////////////////////////////////////////////////
+
+                $img0.attr("src","../../../images/a7.png").appendTo(".loading");
+                //pdf文件 
+                if(fileType=='.pdf' || fileType=='.PDF'){
+                    var $pdf0 = '<img class="up-img" src="../../images/pdflogo.jpg" style="width: 190px; height: 180px;">';
+                }else{
+                    var $pdf0 = '<img class="up-img" src="'+nameURL+'" style="width: 190px; height: 180px;">';
+                }
+                $(".loading").append($pdf0);
+                $(this).parent(".fl").removeClass("loading");
+                $(this).removeClass('file_edit');
+                if($('.z_photo .file_box').length==0){
+                    $('.z_file').before(z_fileText);
+                }else{
+                    $(".file_box").remove();
+                    $('.z_file').before(z_fileText);
+                }
+                //$('.z_file .file_edit').
+            });
+            $(".z_photo").delegate(".close-upimg","click",function(){
+                if($(this).parent(".up-section").find('.PolicyEle_id').length!=0){
+                    var PolicyEle_id = $(this).parent(".up-section").find('.PolicyEle_id').val();
+                    $(".wsdel-ok").attr("PolicyEle_id",PolicyEle_id);
+                    $(".wsdel-ok").attr("px",$(this).parent(".up-section").index());
+                    console.log('dd'+$(".wsdel-ok").attr("px"));
+                } else{
+                    $(".wsdel-ok").attr("PolicyEle_id",'');
+                    $(".wsdel-ok").attr("px",$(this).parent(".up-section").index());
+                    console.log('dd'+$(".wsdel-ok").attr("px"));
+                }
+                $(".works-mask").show();
+                delParent = $(this).parent();
+            }); 
+            $(".wsdel-ok").click(function(){ 
+                var PolicyEle_id = $(this).attr('PolicyEle_id');
+                var num = $(this).attr('px');
+                if($(this).attr('PolicyEle_id')!=''){
+                    var PolicyEle_id = $(this).attr('PolicyEle_id');
+                    $.ajax({
+                        type : 'POST',
+                        url : '/bx/Policy/ChangedPolicyeleDelete/'+PolicyEle_id,
+                        dataType : 'json',
+                        success : function(data) {
+                            console.log(data);
+                            if(data.Status == 1) {
+                                BootstrapDialog.show({
+                                    message: data.Message,
+                                    buttons: [{
+										icon: "glyphicon glyphicon-ok",
+										label: "确认",
+										action: function(dialogRef) {
+											dialogRef.close();
+										}
+									}]
+                                });
+                                $('.picBox_add').find(".up-section").eq(num).remove();
+                                if($(".PolicyEle_id").length==0){
+                                    $('#BxPolicy').bootstrapTable("refresh");
+                                }
+                            } else {
+                                if(data.Message==null){
+                                    BootstrapDialog.alert('删除不成功');
+                                    $(".works-mask").hide();
+                                }else{
+                                    BootstrapDialog.alert(data.Message);
+                                    $(".works-mask").hide();
+                                }
+                            }
+                            $(".works-mask").hide();
+                        }, 
+                        error : function(e) {
+                            BootstrapDialog.alert('删除不成功');
+                            $(".works-mask").hide();
+                        }
+                    });
+                }else{
+                    BootstrapDialog.alert('删除成功');
+                    $('.picBox_add').find(".up-section").eq(num).remove();
+                    $(".works-mask").hide();
+                }
+                
+            }); 
+            $(".wsdel-no").click(function(){
+                $(".works-mask").hide();
+            }); 
+        });
+    </script>
+</body>
+</html>

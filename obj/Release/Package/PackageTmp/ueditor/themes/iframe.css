@@ -1,0 +1,5 @@
+/*可以在这里添加你自己的css*/
+.text_editor #editor{
+	position: relative;
+	height: 100%;
+}

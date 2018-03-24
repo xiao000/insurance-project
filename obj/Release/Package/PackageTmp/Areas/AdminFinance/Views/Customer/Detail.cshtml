@@ -1,0 +1,34 @@
+﻿@model Bx_Core.Customer
+
+@{
+    ViewBag.Title = "终端用户信息详情";
+    Layout = null;
+}
+
+<div class="ins_rightmian ins_fullcontent" id="ins_rightmain">
+    <div class="ins_rightcontent">
+        <div class="content_main">
+            <div class="content_maintable">
+                <div id="content-body">                   
+                        <ul class="users_info">
+                            <li class="noedit"><label>注册时间</label>@Html.TextBoxFor(m => m.CreateDateTime, new { disabled = "false" })</li>
+                            <li class="noedit"><label>用户账号</label>@Html.TextBoxFor(m => m.username, new { disabled = "false" }) </li>
+                            <li>
+                                <label>联系人</label>@Html.TextBoxFor(m => m.Contacts, new { disabled = "false" })
+                            </li>
+                            <li class="noedit"><label>手机号码</label>@Html.TextBoxFor(m => m.Phone, new { disabled = "false" })  </li>
+                            <li>
+                                <label>公司名称</label>@Html.TextBoxFor(m => m.CorporateName, new { disabled = "false" })                                
+                            </li>
+                            <li>
+                                <label>邮箱地址</label>@Html.TextBoxFor(m => m.Email, new { disabled = "false" })
+                            </li>
+                            <li>
+                                <label>详细地址</label>@Html.TextAreaFor(m => m.Address, new { disabled = "false" })
+                            </li>                        
+                        </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

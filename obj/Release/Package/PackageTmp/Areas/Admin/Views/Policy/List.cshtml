@@ -1,0 +1,1180 @@
+﻿@model Bx_Core.Policy
+
+@{
+    ViewBag.Title = "保单管理";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml";
+}
+<style>
+	.fixed-table-toolbar .bars.pull-left{
+		float: right !important;
+	}
+</style>
+		<!--ins_fullcontent start-->
+		<div class="ins_rightmian ins_fullcontent" id="ins_rightmain">
+			<div class="ins_rightcontent">
+				<div class="content_timetoggle content_toptitle">
+					<div class="statushead AdminPolicyStatus">
+						<ul class="nav nav-pills">
+							<li class="List active">全部保单</li>
+							<li class="WaitPolicy">待a审核<span class="badge badge-danger"></span></li>
+							<li class="APolicyErr">a审核失败<span class="badge badge-danger"></span></li>
+							<li class="BWaitPolicy">待b审核<span class="badge badge-danger"></span></li>
+							<li class="BPolicyErr">b审核失败<span class="badge badge-danger"></span></li>
+							<!--<li class="PolicyWaitPay">已审核待付款<span class="badge badge-danger"></span></li>
+						  	<li class="PolicyPayed">已付款<span class="badge badge-danger"></span></li>-->
+						  	<li class="AllPolicyed">已生效<span class="badge badge-danger"></span></li>
+						  	<li class="PolicyWaitBack">待a退保<span class="badge badge-danger"></span></li>
+						  	<li class="APolicyBackErr">a退保审核失败<span class="badge badge-danger"></span></li>
+						  	<li class="BPolicyWaitBack">待b退保<span class="badge badge-danger"></span></li>
+						  	<li class="BPolicyBackErr">b退保审核失败<span class="badge badge-danger"></span></li>
+						  	<li class="PolicyBack">已退保<span class="badge badge-danger"></span></li>
+						  	<li class="PolicyWaitChange">待a变更<span class="badge badge-danger"></span></li>
+						  	<li class="APolicyChangedErr">a变更审核失败<span class="badge badge-danger"></span></li>
+						  	<li class="BPolicyWaitChange">待b变更<span class="badge badge-danger"></span></li>
+						  	<li class="BPolicyChangedErr">b变更审核失败<span class="badge badge-danger"></span></li>
+						  	<li class="PolicyChanged">已变更<span class="badge badge-danger"></span></li>
+						  	<li class="PolicyForbid">已禁用<span class="badge badge-danger"></span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="content_main">
+					<div id="AdminPolicy_Toolbar" class="btn-group form-inline">
+						<button id="exportall" type="button" class="commonbtn exportbtn">导出all</button>
+			        </div>
+			        <table id="AdminPolicy">
+					</table>
+				</div>
+			</div>
+		</div>
+		<!--ins_fullcontent end-->
+		
+
+		<script type="text/javascript">	
+			$(function() {
+				//主要内容高度
+				$head=$("#ins_header").height()+30;
+				$rightmain=$(window).height()-$head-30;
+				$("#ins_rightmain").css("min-height",$rightmain+"px");
+				$tablebox=$(".content_timetoggle").height();
+				$btable=$rightmain-$tablebox;
+				$(".bootstrap-table").css("min-height",$btable+"px");
+				$(window).resize(function(){
+					//主要内容高度
+					$head=$("#ins_header").height()+30;
+					$rightmain=$(window).height()-$head-30;
+					$("#ins_rightmain").css("min-height",$rightmain+"px");
+					$tablebox=$(".content_timetoggle").height();
+					$btable=$rightmain-$tablebox;
+					$(".bootstrap-table").css("min-height",$btable+"px");
+				});
+				function AdminPolicyStatusAjax(){
+					$.ajax({
+						type : 'post',
+						url : "/Admin/Policy/Count",
+						success: function(data){
+							$(".WaitPolicy span").text(data.Data.WaitPolicy);
+							$(".APolicyErr span").text(data.Data.APolicyErr);
+							$(".BWaitPolicy span").text(data.Data.BWaitPolicy);
+							$(".BPolicyErr span").text(data.Data.BPolicyErr);
+							/*$(".PolicyWaitPay span").text(data.Data.PolicyWaitPay);
+							$(".PolicyPayed span").text(data.Data.PolicyPayed);*/
+							$(".AllPolicyed span").text(data.Data.AllPolicyed);
+							$(".PolicyWaitBack span").text(data.Data.PolicyWaitBack);
+							$(".APolicyBackErr span").text(data.Data.APolicyBackErr);
+							$(".BPolicyWaitBack span").text(data.Data.BPolicyWaitBack);
+							$(".BPolicyBackErr span").text(data.Data.BPolicyBackErr);
+							$(".PolicyBack span").text(data.Data.PolicyBack);
+							$(".PolicyWaitChange span").text(data.Data.PolicyWaitChange);
+							$(".APolicyChangedErr span").text(data.Data.APolicyChangedErr);
+							$(".BPolicyWaitChange span").text(data.Data.BPolicyWaitChange);
+							$(".BPolicyChangedErr span").text(data.Data.BPolicyChangedErr);
+							$(".PolicyChanged span").text(data.Data.PolicyChanged);
+							$(".PolicyForbid span").text(data.Data.PolicyForbid);
+						}
+					});
+				};
+				AdminPolicyStatusAjax();
+				$('#AdminPolicy').bootstrapTable({
+					url: '/Admin/Policy/List',
+					data_id:'0',
+					method: 'post', //请求方式（*）
+					toolbar: '#AdminPolicy_Toolbar', //工具按钮用哪个容器
+					striped: true, //是否显示行间隔色
+					cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+					pagination: true, //是否显示分页（*）
+					sortable: false, //是否启用排序
+					sortOrder: "desc", //排序方式
+					//queryParams:queryParams,//传递参数（*）
+					sidePagination: "server", //分页方式：client客户端分页，server服务端分页（*）
+					pageNumber: 1, //初始化加载第一页，默认第一页
+					pageSize: 10, //每页的记录行数（*）
+					queryParamsType: "limit",
+					sortable: true, //是否启用排序
+					pageList: [10, 25, 50, 100],  //可供选择的每页的行数（*）
+					search: true, //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+					locale: "zh-CN",
+					strictSearch: true,
+					showColumns: true, //是否显示所有的列
+					//showRefresh: true,                  //是否显示刷新按钮
+					minimumCountColumns: 2, //最少允许的列数
+					clickToSelect: false, //是否启用点击选中行
+					uniqueId: "Id", //每一行的唯一标识，一般为主键列
+					showToggle: false, //是否显示详细视图和列表视图的切换按钮
+					cardView: false, //是否显示详细视图
+					detailView: true, //是否显示父子表
+					//height: $th, //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+					showExport: true,
+					exportDataType: 'all',
+					idField: "PolicyId",
+					//exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel'],
+					exportTypes: ['excel'],
+					contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+					searchAlign: "left",
+					buttonsAlign: "right",
+					toolbarAlign: "right",
+					columns: [{
+							checkbox: true,
+						},
+						{
+							field: "Id",
+							title: "序号",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function (value, row, index) {
+							    var pageSize=$('#AdminPolicy').bootstrapTable('getOptions').pageSize;//通过表的#id 可以得到每页多少条
+                			    			    var pageNumber=$('#AdminPolicy').bootstrapTable('getOptions').pageNumber;//通过表的#id 可以得到当前第几页
+                			    			    return pageSize * (pageNumber - 1) + index + 1;    //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
+							}
+						},
+						{
+		                    field: "Creater",
+		                    title: "账号",
+		                    align: "center",
+		                    valign: "middle",
+		                    formatter: function (value) {
+							    return "<a href='#' class='totalinfo' data-operation='totalinfouser' data-value='" + value + "'>"+value+"</a>";
+							}
+						},
+                        {
+                            field: "Area",
+                            title: "区域",
+                            align: "center",
+                            valign: "middle"
+                        },
+                        {
+                            field: "CustomerCorporateName",
+                            title: "客户名称",
+                            align: "center",
+                            valign: "middle"
+                        },
+						{
+							field: "PolicyNumber",
+							title: "订单号",
+							align: "center",
+							valign: "middle",
+							formatter: function(value,data){
+								return '<span id="polnumber" data-value="'+value+'">'+value+'</span>'
+							}
+						},
+						{
+							field: "PolicyCreateTime",
+							title: "提交时间",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function(value){
+								var str=value.replace("/Date(","");
+								var txt=str.replace(")/","");
+								return new Date(parseInt(txt)).toLocaleString();
+							}
+						},
+						{
+							field: "CorporateName",
+							title: "商户名称",
+							align: "center",
+							valign: "middle"
+						},
+						{
+							field: "Contacts",
+							title: "被保险人",
+							align: "center",
+							valign: "middle"
+						},
+						{
+							field: "PolRemark",
+							title: "备注",
+							align: "center",
+							valign: "middle"
+						},
+						{
+							field: "UserType",
+							title: "用户类型",
+							align: "center",
+							valign: "middle"
+						},
+						{
+							field: "IDCardType",
+							title: "证件类型",
+							align: "center",
+							valign: "middle"
+						},
+						{
+							field: "IDCardNum",
+							title: "证件号码",
+							align: "center",
+							valign: "middle"
+						},
+						{
+				            field: "BxCorporateName",
+				            title: "保险公司",
+				            align: "center",
+				            valign: "middle"
+				        },
+				        {
+				            field: "BxType",
+				            title: "保险种类",
+				            align: "center",
+				            valign: "middle"
+				        },
+				        {
+				            field: "BxIndustry",
+				            title: "保险行业",
+				            align: "center",
+				            valign: "middle"
+				        },
+						{
+							field: "PolicyContent",
+							title: "承保内容",
+							align: "center",
+							valign: "middle"
+						},
+						{
+						    field: "PolicyId",
+							title: "投保地址",
+							align: "center",
+							valign: "middle",
+							formatter: function(value,data){
+								value=data.Province+data.City+data.Town+data.Address;
+								return value;
+							}
+						},
+						{
+							field: "PolicyDeadline",
+							title: "承保期限",
+							align: "center",
+							valign: "middle"
+						},
+						{
+							field: "BxAmount",
+							title: "保额/万元",
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						{
+							field: "PayAmount",
+							title: "金额/元",
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						{
+							field: "BxPriRate",
+							title: "私有费率",
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						{
+							field: "BxPubRate",
+							title: "费率",/*公有费率*/
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						{
+							field: "Status",
+							title: "状态",
+							align: "center",
+							valign: "middle",
+							formatter: function(value){
+								if(value=='0'){
+									return "待a审核";
+								}else if(value=='1'){
+									return "a审核失败";
+								}else if(value=='2'){
+									return "b审核失败";
+								}else if(value=='3'){
+									return "待b审核";
+								}else if(value=='4'){
+									return "已审核待付款";
+								}else if(value=='5'){
+									return "已付款";
+								}else if(value=='7'){
+									return "已生效";
+								}else if(value=='10'){
+									return "待a审核退保";
+								}else if(value=='11'){
+									return "待b审核退保";
+								}else if(value=='12'){
+									return "a审核退保失败";
+								}else if(value=='13'){
+									return "b审核退保失败";
+								}else if(value=='14'){
+									return "已退保";
+								}else if(value=='15'){
+									return "待a审核变更";
+								}else if(value=='16'){
+									return "待b审核变更";
+								}else if(value=='17'){
+									return "a审核变更失败";
+								}else if(value=='18'){
+									return "b审核变更失败";
+								}else if(value=='19'){
+									return "已变更";
+								}else if(value=='20'){
+									return "已禁用";
+								}
+							}
+						},
+						{
+							field: "AccessTime",
+							title: "生效时间",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function(value){
+								if(value){
+									var str=value.replace("/Date(","");
+									var txt=str.replace(")/","");
+									return new Date(parseInt(txt)).toLocaleString();
+								}else{
+									return "-";
+								}
+							}
+						},
+						/*{
+							field: "PolicyId",
+							title: "纸质保单（需要,邮寄）",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function(value,data){
+		                        if(data.PaperPolicy==1&&data.PaperPost==1){
+		                            return "是,<span class='glyphicon glyphicon-ok'></span>";
+		                        }
+		                        if(data.PaperPolicy==1&&data.PaperPost==0){
+		                            return "是,<span class='glyphicon glyphicon-remove'></span>";
+		                        }
+		                        if(data.PaperPolicy==0&&data.PaperPost==1){
+		                            return "否,<span class='glyphicon glyphicon-ok'></span>";
+		                        }
+		                        if(data.PaperPolicy==0&&data.PaperPost==0){
+		                            return "否,<span class='glyphicon glyphicon-remove'></span>";
+		                        }
+		                    }
+						},*/
+						{
+							field: "PaperPolicy",
+							title: "纸质保单",
+							align: "center",
+							valign: "middle",
+							formatter: function(value){
+		                        if(value){
+		                            return "是";
+		                        }else{
+		                        	return "否";
+		                        }
+		                    }
+						},
+						{
+							field: "PaperPost",
+							title: "邮寄",
+							align: "center",
+							valign: "middle",
+							formatter: function(value){
+		                        if(value){
+		                            return "<span class='glyphicon glyphicon-ok'></span>";
+		                        }else{
+		                            return "<span class='glyphicon glyphicon-remove'></span>";
+		                        }
+		                    }
+						},
+						{
+							field: "ElePolicy",
+							title: "电子保单",
+							align: "center",
+							valign: "middle",
+							formatter: function(value,data){
+		                    	if(data.IsPolicyele){
+		                    		return "有";
+		                    	}else{
+		                            return "无";
+		                        }
+		                    }
+						},
+						{
+							field: "PolicyAnnex",
+							title: "附件",
+							align: "center",
+							valign: "middle",
+							formatter: function(value){
+								if(value){
+									return "<span class='glyphicon glyphicon-ok'></span>";
+								}else{
+									return "<span class='glyphicon glyphicon-remove'></span>";
+								}
+							}
+						},
+						{
+							field: "PolicyId",
+							title: "操作",
+							align: "center",
+							valign: "middle",
+							formatter: function(value,data) {
+								if(data.Status<'7'){
+		                    		if(data.Status=='1'||data.Status=='2'){
+		                    			return "<button class='glyphicon glyphicon-pause opeicon' data-operation='forbidpolicy' data-value='" + value + "' title='禁用'></button><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button><button class='glyphicon glyphicon-folder-open opeicon' data-operation='rechargelist' data-value='" + value + "' title='流水信息'></button>"
+		                    		}else{
+		                    			return "<button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button><button class='glyphicon glyphicon-folder-open opeicon' data-operation='rechargelist' data-value='" + value + "' title='流水信息'></button>"
+		                    		}
+		                    	}else if(data.Status<='19'){
+		                    		if(data.IsPolicyele){
+		                    			if(!data.PaperPost){
+			                    			return "<button class='glyphicon glyphicon-envelope opeicon' data-operation='paperpost' data-value='" + value + "' title='邮寄'></button><button class='glyphicon glyphicon-save-file opeicon' data-operation='policyeledetail' data-value='" + value + "' title='回单详情'></button><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button><button class='glyphicon glyphicon-folder-open opeicon' data-operation='rechargelist' data-value='" + value + "' title='流水信息'></button>"
+			                    		}else{
+			                    			return "<button class='glyphicon glyphicon-save-file opeicon' data-operation='policyeledetail' data-value='" + value + "' title='回单详情'></button><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button><button class='glyphicon glyphicon-folder-open opeicon' data-operation='rechargelist' data-value='" + value + "' title='流水信息'></button>"
+			                    		}
+		                    		}else{
+		                    			return "<button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button><button class='glyphicon glyphicon-folder-open opeicon' data-operation='rechargelist' data-value='" + value + "' title='流水信息'></button>"
+		                    		}
+		                    	}else if(data.Status=='20'){
+		                    		return "<button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button><button class='glyphicon glyphicon-folder-open opeicon' data-operation='rechargelist' data-value='" + value + "' title='流水信息'></button>"
+		                    	}
+							}
+						}
+					],
+
+					onPageChange: function(size, number) {
+					},
+					formatNoMatches: function() {
+						return '没有相关数据哦！';
+					},
+
+					onLoadSuccess: function() {
+						//修改按钮
+						$("button[data-operation='editusers']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "修改",
+								message: function(dialog) {
+
+									var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("Edit","Policy",new {area="Admin" })' + '/' + id
+								},
+								buttons: [{
+									icon: "glyphicon glyphicon-ok",
+									label: "保存",
+									action: function(dialogItself) {
+										$.post($("#AdminPolicyEdit").attr("action"), $("#AdminPolicyEdit").serializeArray(), function(data) {
+											if(data.Status == 1) {
+												BootstrapDialog.show({
+													message: data.Message,
+													buttons: [{
+														icon: "glyphicon glyphicon-ok",
+														label: "确定",
+														action: function(dialogItself) {
+															$('#AdminPolicy').bootstrapTable("refresh");
+															AdminPolicyStatusAjax();
+															dialogItself.close();
+															addDialog.close();
+														}
+													}]
+
+												});
+											} else BootstrapDialog.alert(data.Message);
+										}, "json");
+										$("form").validate();
+									}
+								}, {
+									icon: "glyphicon glyphicon-remove",
+									label: "关闭",
+									action: function(dialogItself) {
+
+										dialogItself.close();
+									}
+								}]
+							});
+							addDialog.open();
+						});
+						//删除按钮
+						$("button[data-operation='deleteusers']").click(function() {
+							var id = $(this).attr("data-value");
+							BootstrapDialog.confirm("你确定要删除" + $(this).parent().parent().find("td").eq(2).text() + "吗？", function(result) {
+								if(result) {
+								    $.post("@Url.Action("delete","Policy",new {area="Admin"})", {id: id}, function(data) {
+										if(data.Status == 1) {
+											BootstrapDialog.show({
+												message: "删除成功",
+												buttons: [{
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogItself) {
+														$('#AdminPolicy').bootstrapTable("refresh");
+														AdminPolicyStatusAjax();
+														dialogItself.close();
+													}
+												}]
+											});
+										}
+									});
+								}
+							});
+						});
+						//禁用按钮
+						$("button[data-operation='forbidpolicy']").click(function() {
+							var id = $(this).attr("data-value");
+							BootstrapDialog.confirm("你确定要启用/禁用" + $(this).parent().parent().find("td").eq(2).text() + "吗？", function(result) {
+								if(result) {
+								    $.post("@Url.Action("PolicyForbid","Policy",new {area="Admin"})", {id: id}, function(data) {
+										if(data.Status == 1) {
+											BootstrapDialog.show({
+												message: "启用/禁成功",
+												buttons: [{
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogItself) {
+														$('#AdminPolicy').bootstrapTable("refresh");
+														AdminPolicyStatusAjax();
+														dialogItself.close();
+													}
+												}]
+											});
+										}
+									});
+								}
+							});
+						});
+						//详情按钮
+						$("button[data-operation='detailusers']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "保单详情",
+								message: function(dialog) {
+
+									var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("Detail","Policy", new {area="Admin" })' + '/' + id
+								},
+								buttons: [{
+									id: "goitbtn",
+									icon: "glyphicon glyphicon-ok",
+									label: "通过",
+									action: function(dialogItself) {
+										var bd_status = $("#bd_status").val();
+										console.log('bd_status='+bd_status);
+										if(bd_status==0){
+											$("#AdminPolicyDetail").attr("action","/Admin/Policy/BWaitPolicy");
+											$("#AdminPolicyDetail").attr("data-ajax-url","/Admin/Policy/BWaitPolicy");
+											$.post($("#AdminPolicyDetail").attr("action"), {id:id}, function(data) {
+												if(data.Status == 1) {
+													BootstrapDialog.show({
+														message: data.Message,
+														buttons: [{
+															icon: "glyphicon glyphicon-ok",
+															label: "确定",
+															action: function(dialogItself) {
+																$('#AdminPolicy').bootstrapTable("refresh");
+																AdminPolicyStatusAjax();
+																dialogItself.close();
+																addDialog.close();
+															}
+														}]
+													});
+												} else BootstrapDialog.alert(data.Message);
+											}, "json");
+											$("form").validate();
+										}
+										if(bd_status==10){
+											$("#AdminPolicyDetail").attr("action","/Admin/Policy/BPolicyWaitBack");
+											$("#AdminPolicyDetail").attr("data-ajax-url","/Admin/Policy/BPolicyWaitBack");
+											var addbackannex = new BootstrapDialog({
+												title: "添加退保附件",
+												message: function(dialog) {
+				
+													var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+													var pageToLoad = dialog.getData('pageToLoad');
+													$message.load(pageToLoad);
+				
+													return $message;
+												},
+												data: {
+													'pageToLoad': '@Url.Action("BackAnnex","Policy", new {area="Admin" })' + '/' + id
+												},
+												buttons: [{
+													id: "goitbtn",
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogItRef) {
+														var bxCorporatename=$("#bxCorporatename").val();
+														var cstUsername=$("#cstUsername").val();
+														var policyId=$("#policyId").val();
+														console.log("bxCorporatename="+bxCorporatename+",cstUsername="+cstUsername+",policyId="+policyId);
+														var addPolicyele = $('.picBoxAnnex').find('.up-section').length;
+														console.log(addPolicyele);
+														var data = new FormData();
+														data.append("bxCorporatename", bxCorporatename);
+														data.append("cstUsername", cstUsername);
+														data.append("policyId", policyId);
+														for(var i= 0; i<addPolicyele;i++){
+															console.log('val'+i+'='+$('.picBoxAnnex').find('.up-section').eq(i).find('input[name="file"]').val());
+															var inputID = 'inputID'+i;
+															$('.picBoxAnnex').find('.up-section').eq(i).find('input[name="file"]').attr('id',inputID);
+															data.append('',document.getElementById(inputID).files[0]);
+														}
+
+														$.ajax({
+															type : 'POST',
+															url : '/Admin/Policy/BPolicyWaitBack',
+															data : data,
+															processData : false,
+															contentType : false,
+															dataType : 'json',
+															success : function(data) {
+																//console.log(data);
+																if(data.Status == 1) {	
+																	BootstrapDialog.show({
+																		message: data.Message,
+																		buttons: [{
+																			icon: "glyphicon glyphicon-ok",
+																			label: "通过并添加退保附件成功",
+																			action: function(dialogItRef) {
+																				$('#AdminPolicy').bootstrapTable("refresh");
+																				AdminPolicyStatusAjax();
+																				dialogItRef.close();
+																				addbackannex.close();
+																				dialogItself.close();
+																				addDialog.close();
+																			}
+																		}]
+					
+																	});
+																} else BootstrapDialog.alert(data.Message);
+															}
+														});
+														$("form").validate();
+													}
+												},{
+													icon: "glyphicon glyphicon-remove",
+													label: "取消",
+													action: function(dialogItRef) {
+														dialogItRef.close();
+														addbackannex.close();
+														dialogItself.close();
+														addDialog.close();
+													}
+												}]
+											});
+											addbackannex.open();
+										}
+										if(bd_status==15){
+											$("#AdminPolicyDetail").attr("action","/Admin/Policy/BPolicyWaitChange");
+											$("#AdminPolicyDetail").attr("data-ajax-url","/Admin/Policy/BPolicyWaitChange");
+											var addchangedannex = new BootstrapDialog({
+												title: "添加变更附件",
+												message: function(dialog) {
+				
+													var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+													var pageToLoad = dialog.getData('pageToLoad');
+													$message.load(pageToLoad);
+													return $message;
+												},
+												data: {
+													'pageToLoad': '@Url.Action("ChangedAnnex","Policy", new {area="Admin" })' + '/' + id
+												},
+												buttons: [{
+													id: "goitbtn",
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogItRef) {
+														var bxCorporatename=$("#bxCorporatename").val();
+														var cstUsername=$("#cstUsername").val();
+														var policyId=$("#policyId").val();
+														
+														
+														var addPolicyele = $('.picBoxAnnex').find('.up-section').length;
+														console.log(addPolicyele);
+														var data = new FormData();
+														data.append("bxCorporatename", bxCorporatename);
+														data.append("cstUsername", cstUsername);
+														data.append("policyId", policyId);
+														for(var i= 0; i<addPolicyele;i++){
+															console.log('val'+i+'='+$('.picBoxAnnex').find('.up-section').eq(i).find('input[name="file"]').val());
+															var inputID = 'inputID'+i;
+															$('.picBoxAnnex').find('.up-section').eq(i).find('input[name="file"]').attr('id',inputID);
+															data.append('',document.getElementById(inputID).files[0]);
+														}
+
+														$.ajax({
+															type : 'POST',
+															url : '/Admin/Policy/BPolicyWaitChange',
+															data : data,
+															processData : false,
+															contentType : false,
+															dataType : 'json',
+															success : function(data) {
+																//console.log(data);
+																if(data.Status == 1) {
+																	BootstrapDialog.show({
+																		message: data.Message,
+																		buttons: [{ 
+																			icon: "glyphicon glyphicon-ok",
+																			label: "通过并添加变更附件成功",
+																			action: function(dialogItRef) {
+																				$('#AdminPolicy').bootstrapTable("refresh");
+																				AdminPolicyStatusAjax();
+																				dialogItRef.close();
+																				addchangedannex.close();
+																				dialogItself.close();
+																				addDialog.close();
+																			}
+																		}]
+																	});
+																} else BootstrapDialog.alert(data.Message);
+															}
+														});
+														
+														$("form").validate();
+													}
+												},{
+													icon: "glyphicon glyphicon-remove",
+													label: "取消",
+													action: function(dialogItRef) {
+														dialogItRef.close();
+														addchangedannex.close();
+														dialogItself.close();
+														addDialog.close();
+													}
+												}]
+											});
+											addchangedannex.open();
+										}
+										if(bd_status==18){
+											$("#AdminPolicyDetail").attr("action","/Admin/Policy/BPolicyWaitChange");
+											$("#AdminPolicyDetail").attr("data-ajax-url","/Admin/Policy/BPolicyWaitChange");
+											var editchangedannex = new BootstrapDialog({
+												title: "添加变更附件",
+												message: function(dialog) {
+				
+													var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+													var pageToLoad = dialog.getData('pageToLoad');
+													$message.load(pageToLoad);
+				
+													return $message;
+												},
+												data: {
+													'pageToLoad': '@Url.Action("ChangedAnnexEdit","Policy", new {area="Admin" })' + '/' + id
+												},
+												buttons: [{
+													id: "goitbtn",
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogItRef) {
+														var bxCorporatename=$("#bxCorporatename").val();
+														var cstUsername=$("#cstUsername").val();
+														var policyId=$("#policyId").val();
+														$.post($("#AdminPolicyDetail").attr("action"), {bxCorporatename:bxCorporatename,cstUsername:cstUsername,policyId:policyId}, function(data) {
+															if(data.Status == 1) {
+																BootstrapDialog.show({
+																	message: data.Message,
+																	buttons: [{
+																		icon: "glyphicon glyphicon-ok",
+																		label: "通过并添加变更附件成功",
+																		action: function(dialogItRef) {
+																			$('#AdminPolicy').bootstrapTable("refresh");
+																			AdminPolicyStatusAjax();
+																			dialogItRef.close();
+																			editchangedannex.close();
+																			dialogItself.close();
+																			addDialog.close();
+																		}
+																	}]
+				
+																});
+															} else BootstrapDialog.alert(data.Message);
+														}, "json");
+														$("form").validate();
+													}
+												},{
+													icon: "glyphicon glyphicon-remove",
+													label: "取消",
+													action: function(dialogItRef) {
+														dialogItRef.close();
+														editchangedannex.close();
+														dialogItself.close();
+														addDialog.close();
+													}
+												}]
+											});
+											editchangedannex.open();
+										}
+										/*$.post($("#AdminPolicyDetail").attr("action"), {id:id}, function(data) {
+											if(data.Status == 1) {
+												BootstrapDialog.show({
+													message: data.Message,
+													buttons: [{
+														icon: "glyphicon glyphicon-ok",
+														label: "确定",
+														action: function(dialogItself) {
+															$('#AdminPolicy').bootstrapTable("refresh");
+															AdminPolicyStatusAjax();
+															dialogItself.close();
+															addDialog.close();
+														}
+													}]
+
+												});
+											} else BootstrapDialog.alert(data.Message);
+										}, "json");
+										$("form").validate();*/
+
+									}
+								}, {
+									icon: "glyphicon glyphicon-remove",
+									label: "不通过",
+									action: function(dialogItself) {
+										var bd_status = $("#bd_status").val();
+										console.log('bd_status-no='+bd_status);
+										if(bd_status==0){
+											$("#AdminPolicyDetail").attr("action","/Admin/Policy/PolicyErr");
+											$("#AdminPolicyDetail").attr("data-ajax-url","/Admin/Policy/PolicyErr");
+										}
+										if(bd_status==10){
+											$("#AdminPolicyDetail").attr("action","/Admin/Policy/APolicyBackErr");
+											$("#AdminPolicyDetail").attr("data-ajax-url","/Admin/Policy/APolicyBackErr");
+										}
+										if(bd_status==15){
+											$("#AdminPolicyDetail").attr("action","/Admin/Policy/APolicyChangedErr");
+											$("#AdminPolicyDetail").attr("data-ajax-url","/Admin/Policy/APolicyChangedErr");
+										}
+										BootstrapDialog.show({
+											title:"不通过原因",
+											message: $('<textarea rows="5" name="APolicyErrReason" id="APolicyErrReason" class="APolicyErrReason"></textarea>'),
+											buttons: [{
+												icon: "glyphicon glyphicon-ok",
+												label: "保存",
+												action: function(dialogItself) {
+													var reason=$("#APolicyErrReason").val();/*'@Url.Action("PolicyErr", "Policy", new {area="Admin"})'*/
+													$.post($("#AdminPolicyDetail").attr("action"), {id: id, APolicyErrReason: reason}, function(data) {
+														/*console.log(id);
+														console.log(reason);
+														console.log(data.Status);*/
+														if(data.Status == 1) {
+															BootstrapDialog.show({
+																message: data.Message,
+																buttons: [{
+																	icon: "glyphicon glyphicon-ok",
+																	label: "确定",
+																	action: function(dialogRef) {
+																		$('#AdminPolicy').bootstrapTable("refresh");
+																		AdminPolicyStatusAjax();
+																		dialogRef.close();
+																		dialogItself.close();
+																		addDialog.close();
+																	}
+																}]
+															});
+														} else BootstrapDialog.alert(data.Message);
+													}, "json");
+													$("form").validate();
+												}
+											}]
+										});
+									}
+								}]
+							});
+							addDialog.open();
+						});
+						//回单详情按钮
+						$("button[data-operation='policyeledetail']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "回单",
+								message: function(dialog) {
+
+									var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("PolicyeleDetail","Policy",new {area="Admin" })' + '/' + id
+								},
+								buttons: [{
+									icon: "glyphicon glyphicon-remove",
+									label: "关闭",
+									action: function(dialogItself) {
+										dialogItself.close();
+									}
+								}]
+							});
+							addDialog.open();
+						});
+						//邮寄保单按钮
+						$("button[data-operation='paperpost']").click(function() {
+							var id = $(this).attr("data-value");
+							BootstrapDialog.confirm("你确定已经寄出纸质保单" + $(this).parent().parent().find("td").eq(3).text() + "了？", function(result) {
+								if(result) {
+								    $.post("@Url.Action("PaperPost","Policy",new {area="Admin"})", {id: id}, function(data) {
+										if(data.Status == 1) {
+											$(this).css("display","none");
+											BootstrapDialog.show({
+												message: "纸质保单已寄出",
+												buttons: [{
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogItself) {
+														$('#AdminPolicy').bootstrapTable("refresh");
+														AdminPolicyStatusAjax();
+														dialogItself.close();
+													}
+												}]
+											});
+										}else{
+											$(this).css("display","block");
+										}
+									});
+								}
+							});
+						});
+						//点击弹出具体信息
+						$("a[data-operation='totalinfouser']").click(function() {
+							var id = $(this).attr("data-value");
+							var tinfoDialog = new BootstrapDialog({
+								title: "具体信息",
+								message: function(dialog) {
+		
+									var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+		
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("CountOnUser","Policy", new {area="Admin" })'+'/'+id
+								},
+							});
+							tinfoDialog.open();
+						});
+						//流水信息按钮
+						$("button[data-operation='rechargelist']").click(function() {
+							var id = $(this).attr("data-value");
+							console.log("id="+id);
+							var policynumber=$(this).parents("tr").find("#polnumber").attr("data-value");
+							var username=$(this).parents("tr").find("a[data-operation='totalinfouser']").attr("data-value");
+							console.log("policynumber="+policynumber);
+							console.log("username="+username);
+							var rechargeDialog = new BootstrapDialog({
+								title: "流水信息",
+								message: function(dialog) {
+									var $message = $('<div></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+									return $message;
+								},
+								data: {
+								    'pageToLoad': '@Url.Action("AmountList", "ReCharge", new {area="Admin"})'+'?id='+id+'&&username='+username
+								},
+								buttons: [{
+									icon: "glyphicon glyphicon-remove",
+									label: "关闭",
+									action: function(dialogItself) {
+										dialogItself.close();
+									}
+								}]
+							});
+							rechargeDialog.open();
+						});
+					}
+				});
+
+				$(window).resize(function() {
+					$('#AdminPolicy').bootstrapTable('resetView');
+				});
+				//导出所有数据按钮
+				$("#exportall").click(function() {
+					var exportDialog = new BootstrapDialog({
+						title: "导出所有数据",
+						message: function(dialog) {
+
+							var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+							var pageToLoad = dialog.getData('pageToLoad');
+							$message.load(pageToLoad);
+
+							return $message;
+						},
+						data: {
+							'pageToLoad': '@Url.Action("export","Policy", new {area="admin" })'
+						}
+					});
+					exportDialog.open();
+				});
+				//添加按钮
+				$("#AdminPolicy_Add").click(function() {
+					var addDialog = new BootstrapDialog({
+						title: "新增保单",
+						message: function(dialog) {
+
+							var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+							var pageToLoad = dialog.getData('pageToLoad');
+							$message.load(pageToLoad);
+
+							return $message;
+						},
+						data: {
+							'pageToLoad': '@Url.Action("Add","Policy", new {area="Admin" })'
+						},
+						buttons: [{
+							icon: "glyphicon glyphicon-plus",
+							label: "提交保单",
+							action: function(dialogItself) {
+								$.post($("#AdminPolicyAdd").attr("action"), $("#AdminPolicyAdd").serializeArray(), function(data) {
+									if(data.Status == 1) {
+										BootstrapDialog.show({
+											message: data.Message,
+											buttons: [{
+												icon: "glyphicon glyphicon-ok",
+												label: "确定",
+												action: function(dialogItself) {
+													$('#AdminPolicy').bootstrapTable("refresh");
+													AdminPolicyStatusAjax()
+													dialogItself.close();
+													addDialog.close();
+												}
+											}]
+
+										});
+									} else BootstrapDialog.alert(data.Message);
+								}, "json");
+								$("form").validate();
+							}
+						}]
+					});
+					addDialog.open();
+				});
+				//添加按钮结束
+
+			});
+			Date.prototype.toLocaleString = function() {
+				return this.getFullYear() + "-" + (this.getMonth() + 1) + "-" + this.getDate() + " " + this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds();
+    			};
+			function getIdSelections() {
+				return $.map($('#AdminPolicy').bootstrapTable('getSelections'), function(row) {
+					return row.id
+				});
+			}
+			//得到查询的参数
+			queryParams = function(params) {
+				var temp = { //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+					//limit: params.limit,   //页面大小
+					limit: params.pageSize, //页面大小
+					offset: params.pageNumber, //页码
+				};
+				return temp;
+			};
+
+			function responseHandler(res) {
+				$.each(res.rows, function(i, row) {
+					row.state = $.inArray(row.id, selections) !== -1;
+				});
+				return res;
+			}
+
+			function detailFormatter(index, row) {
+				var html = [];
+				$.each(row, function(key, value) {
+					html.push('<p><b>' + key + ':</b> ' + value + '</p>');
+				});
+				return html.join('');
+			}
+
+			$(document).ready(function(){
+				$(".AdminPolicyStatus ul li").on("click",function(){
+					$(this).addClass("active").siblings().removeClass("active");
+					if($(".AdminPolicyStatus ul li.active").hasClass("List")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("WaitPolicy")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_WaitPolicy'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("APolicyErr")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_APolicyErr'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("BWaitPolicy")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_BWaitPolicy'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("BPolicyErr")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_BPolicyErr'});
+					}
+					/*if($(".AdminPolicyStatus ul li.active").hasClass("PolicyWaitPay")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_PolicyWaitPay'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("PolicyPayed")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_PolicyPayed'});
+					}*/
+					if($(".AdminPolicyStatus ul li.active").hasClass("AllPolicyed")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_AllPolicyed'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("PolicyWaitBack")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_PolicyWaitBack'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("APolicyBackErr")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_APolicyBackErr'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("BPolicyWaitBack")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_BPolicyWaitBack'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("BPolicyBackErr")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_BPolicyBackErr'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("PolicyBack")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_PolicyBack'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("PolicyWaitChange")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_PolicyWaitChange'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("APolicyChangedErr")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_APolicyChangedErr'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("BPolicyWaitChange")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_BPolicyWaitChange'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("BPolicyChangedErr")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_BPolicyChangedErr'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("PolicyChanged")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_PolicyChanged'});
+					}
+					if($(".AdminPolicyStatus ul li.active").hasClass("PolicyForbid")){
+						$('#AdminPolicy').bootstrapTable('refresh',{url:'/Admin/Policy/List_PolicyForbid'});
+					}
+				});
+			});
+			
+		</script>
+
+
+

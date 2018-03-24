@@ -1,0 +1,145 @@
+﻿@model Bx_Core.Product
+@using Bx_Core;
+
+
+@{
+    ViewBag.Title = "产品详情";
+    Layout = null;
+}
+
+
+<style type="text/css">
+	.modal-dialog{
+		width: 1000px;
+	}
+</style>
+	
+	<div class="wrapper">
+			<div class="register-content">
+				
+					<div class="table">
+						<div class="term">
+							<!-- TODO:-->
+							<!-- <div class="title">创建时间</div>
+							<div class="inputBox">
+								<input type="text" class="l_input" id="createTime" name="createTime" disabled="disabled" />
+							</div> -->
+							<div class="title">保险公司</div>
+							<div class="inputBox">
+                                
+                                @Html.TextBoxFor(a=>a.BxCreateCorporateName,null, new { name="BxCreateCorporateName", disabled="disabled"  })
+								
+							</div>
+						</div>
+						<div class="term selectpicker_term">
+							<div class="title">保险行业</div>
+							<div class="inputBox">
+								@Html.TextBoxFor(a=>a.BxIndustry,null, new { name="BxIndustry", disabled="disabled"  })
+                                						
+							</div>							
+							<div class="title">保险类型</div>
+							<div class="inputBox_r">
+                                						@Html.TextBoxFor(a=>a.BxType,null, new { name="BxType", disabled="disabled"  })
+							</div>
+						</div>
+						<div class="term">
+							<!-- TODO欣 -->
+                            @{
+                                List<Bxar> _bxars=(List<Bxar>)ViewBag.Bxars;
+                                
+                            }
+                              @for (int i = 0; i < _bxars.Count; i++)
+                              {
+                                 var checkit = "";
+                                  if (_bxars[i].NeedImg.HasValue)
+                                  {
+                                      if (_bxars[i].NeedImg == true)
+                                      {
+                                          checkit = "checked";
+                                      }
+
+                                  }
+                                  else
+                                  {
+                                      checkit = "";    
+                                  } 
+                             
+
+                            
+							<div class="l_insuredAmount_box insuredAmount_no">
+                                <div class="title">保额</div>
+                                <div class="inputBox">
+                                    <input data-val="true" data-val-number="字段 保额从 必须是一个数字。" data-val-regex="保额从必须为正整数" data-val-regex-pattern="^[1-9]\d*$" data-val-required="保额从还未添哦" id="[0].BxAmountFrom" name="[@i].BxAmountFrom" type="text" value="@ViewBag.Bxars[i].BxAmountFrom" disabled="disabled" />
+                                    
+
+                                    万到
+                                    <input data-val="true" data-val-number="字段 保额到 必须是一个数字。" data-val-regex="保额到必须为正整数" data-val-regex-pattern="^[1-9]\d*$" data-val-required="保额到还未添哦" id="[0].BxAmountTo" name="[@i].BxAmountTo" type="text" value="@ViewBag.Bxars[i].BxAmountTo" disabled="disabled" />万
+                                    
+                                </div>
+                                <div class="title">费率</div>
+                                <div class="inputBox_r">
+                                    <input data-val="true" data-val-number="字段 费率 必须是一个数字。" data-val-regex="费率必须为1-4位小数" data-val-regex-pattern="^[0-9]+(.[0-9]{1,4})?$" data-val-required="费率还未添哦" id="[0].BxPriRate" name="[@i].BxPriRate" type="text" value="@ViewBag.Bxars[i].BxPriRate" disabled="disabled" />
+                                    
+                                    <div class="title len">图片是否要上传</div>
+                                    <input type="checkbox" name="[@i].NeedImg" value="true" @checkit disabled="disabled" ><span>是</span>
+                                </div>
+                            </div>  
+						}
+
+			 		
+							
+
+						</div>
+						<div class="term">
+							<div class="title">保险条款</div>
+							<!--<textarea name="BxClauses" id="BxClauses" cols="20" rows="2" class="ckeditor" readonly="readonly"></textarea>-->
+                            @Html.TextAreaFor(a => a.BxClauses, new {id="BxClauses", cols="20", rows="2",@class="ckeditor",readOnly="true"})
+							<!--<div>@Model.BxClauses</div>-->
+							<script>
+								CKEDITOR.replace( 'BxClauses');
+							</script>
+						</div>
+						<div class="term">
+							<div class="title">备注</div>
+                            @Html.TextAreaFor(a => a.BxRemark, new {@class="l_textarea", rows="3", name="BxRemark", disabled="disabled"  })
+							
+						</div>
+                        @{
+                            List<UnPubReason> _unpubreasons = (List<UnPubReason>)ViewBag.UnPubReason;
+                            
+                        }
+                        					@if (_unpubreasons.Count()>0)
+                       					{ 
+						<div class="term">
+							<div class="title">原因</div>
+                            
+							<ul class="bxReason">
+								<li class="top">
+									<div class="time">
+										时间
+									</div>
+									<div class="reason">
+										原因
+									</div>
+								</li>
+								@foreach (UnPubReason iterm in ViewBag.UnPubReason)
+								{
+								<li >
+									<div class="time">
+										@iterm.CreatTime
+									</div>
+									<div class="reason">
+										@iterm.UnPUbReason
+									</div>
+									
+								</li>
+								}
+                            
+							</ul>
+                              
+						</div>
+		 				}
+					</div>
+                       
+			</div>
+		</div>

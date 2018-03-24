@@ -1,0 +1,78 @@
+﻿
+@{
+    ViewBag.Title = "账号充值";
+    Layout = "~/Views/Shared/_Customer.cshtml";
+}
+
+<!--ins_fullcontent start-->
+		<div class="ins_rightmian ins_fullcontent" id="ins_rightmain">
+			<div class="ins_rightcontent">
+				<div class="content_timetoggle content_toptitle">
+					<span class="content_toptitletext">账号充值</span>
+					<!--<ul class="nav nav-pills pull-right recharge-header">
+						<li><a href="http://www.cisa110.com/goods.php?id=174" target="_blank">充值</a></li>
+						<li><a href="#" id="rechargedetail">账号明细</a></li>
+					</ul>-->
+				</div>
+				<div class="content_main" style="margin-top: 200px;text-align: center;">
+					<ul class="recharge-header">
+						<li style="display: inline-block;margin: 0 25px;"><a href="http://www.cisa110.com/goods.php?id=174" target="_blank" style="font-size: 16px;border-radius: 5px;">充值</a></li>
+						<li style="display: inline-block;margin: 0 25px;"><a href="#" id="rechargedetail" style="font-size: 16px;border-radius: 5px;">账号明细</a></li>
+					</ul>
+					<!--<div class="container recharge" style="margin-top: 30px;">
+						<h3>充值步骤</h3>
+						<p>1.本商品作为保险充值使用，并非1份保险1元，该商品1份为1元。例如：您需要充值10000元，就要充值10000份。</p>
+						<p>2.完成充值后，请联系财务核对信息，确保无误30分钟之内实时到账余额。</p>
+						<p>3.如需帮助请您及时联系我们的工作人员！（联系电话：18145856110）</p>
+						<p>4.上班时间：周一至周六9:00-18:00</p>
+					</div>-->
+				</div>
+			</div>
+		</div>
+		<!--ins_fullcontent end-->
+		
+		<script type="text/javascript">						
+			
+			$(document).ready(function(){
+			    //主要内容高度
+			    $head=$("#ins_header").height()+30;
+				$rightmain=$(window).height()-$head-30;
+			  	$("#ins_rightmain").css("height",$rightmain+"px");
+			  	
+			  	$(window).resize(function(){
+			  		//主要内容高度
+				    $head=$("#ins_header").height()+30;
+					$rightmain=$(window).height()-$head-30;
+				  	$("#ins_rightmain").css("min-height",$rightmain+"px");
+			  	});
+			  	
+			  	$("#rechargedetail").on("click",function(){
+			  		var getdetailDialog=new BootstrapDialog({
+						title:"账号明细",
+						message: function(dialog) {
+							var $message = $('<div></div>');
+							var pageToLoad = dialog.getData('pageToLoad');
+							$message.load(pageToLoad);
+	
+							return $message;
+						},
+						data: {
+						    'pageToLoad': '@Url.Action("GetDetail")'
+						},
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+								getdetailDialog.close();
+							}
+						}]
+					});
+					getdetailDialog.open();
+			  	});
+			  	
+			});
+		</script>
+
+
+

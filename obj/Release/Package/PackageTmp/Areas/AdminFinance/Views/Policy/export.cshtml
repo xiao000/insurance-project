@@ -1,0 +1,116 @@
+﻿@model Bx_Core.Policy
+@{
+    ViewBag.Title = "";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Document</title>
+	<link rel="stylesheet" type="text/css" href="~/css/data/font-awesome.min.css"/>
+	<link rel="stylesheet" type="text/css" href="~/css/data/daterangepicker.css"/>
+	<script type="text/javascript" src="~/js/data/moment.js"></script>
+	<script type="text/javascript" src="~/js/data/daterangepicker.js"></script>
+</head>
+<body>
+	<!--ins_fullcontent start-->
+	<form action="/AdminFinance/Policy/export" id="exportid" method="post">
+	    <div class="exportList" id="exportList">
+			<div class="export_date">
+				<input type="text" id="exportDate" class="form-control" placeholder="请选择日期范围">
+				<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+			</div>
+			<input type="hidden" name="startcon2" id="startcon2" value="" />
+			<input type="hidden" name="endcon2" id="endcon2" value="" />
+			<div class="export_search">
+				<input type="text" class="form-control exportSearch" id="exportSearch" name="exportSearch" placeholder="搜索" value="">
+			</div>
+			<div class="export_type">
+				<select name="exportType" id="exportType" class="exportType">
+					<option value="">请选择</option>
+					<option value="WaitPolicy">待a审核</option>
+					<option value="APolicyErr">a审核失败</option>
+					<option value="BWaitPolicy">待b审核</option>
+					<option value="BPolicyErr">b审核失败</option>
+					<option value="AllPolicyed">已生效</option>
+					<option value="PolicyWaitBack">待a退保</option>
+					<option value="APolicyBackErr">a退保审核失败</option>
+					<option value="BPolicyWaitBack">待b退保</option>
+					<option value="BPolicyBackErr">b退保审核失败</option>
+					<option value="PolicyBack">已退保</option>
+					<option value="PolicyWaitChange">待a变更</option>
+					<option value="APolicyChangeErr">a变更审核失败</option>
+					<option value="BPolicyWaitChange">待b变更</option>
+					<option value="BPolicyChangeErr">b变更审核失败</option>
+					<option value="PolicyChanged">已变更</option>
+					<option value="PolicyForbid">已禁用</option>
+				</select>
+			</div>
+			<input type="submit" class="commonbtn submitexport" id="submitexport" value="提交" />
+			
+		</div>
+	</form>
+	
+	<!--ins_fullcontent end-->
+	<script>
+	    $(function(){
+	        //日期
+	        var startdates = '';
+	    	var enddates = '';
+	        function updateConfigexport() {
+	            $('#exportDate').daterangepicker({
+	                ranges: {
+	                    '今天': [moment(), moment()],
+	                    '昨天': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+	                    '本周': [moment().startOf('week'), moment().endOf('week')],
+	                    '本月': [moment().startOf('month'), moment().endOf('month')],
+	                    '上个月': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+	                    '今年': [moment().startOf('year'), moment().endOf('year')]
+	                },
+	                autoUpdateInput: false,
+	                startDate: '2017-01-01',
+	                //endDate: moment().endOf('month'),
+	                endDate: moment(),
+	                locale: {
+	                    format: 'YYYY-MM-DD',
+	                    separator: ' - ',
+	                    applyLabel: '申请',
+	                    cancelLabel: '取消',
+	                    resetLabel: '重置',
+	                    fromLabel: '起始时间',
+	                    toLabel: '结束时间',
+	                    customRangeLabel: '自定义',
+	                    daysOfWeek: ['日', '一', '二', '三', '四', '五', '六'],
+	                    monthNames: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+	                    firstDay: 1
+	                },
+	                opens: 'right', //日期选择框的弹出位置
+	                applyClass: 'btn-small btn-primary blue',
+	            },
+	                function (start, end) {//格式化日期显示框
+	                    $('#exportDate').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+	                    startdates = start.format('YYYY-MM-DD');
+	                    enddates = end.format('YYYY-MM-DD');
+	                    if (start._isValid == false && end._isValid == false) {
+	                        startdates = "";
+	                        enddates = "";
+	                        $('#exportDate').val()="请选择日期范围";
+	                    }
+	                    console.log('startdates=' + startdates + ',enddates=' + enddates);
+	                    
+			            $("#startcon2").val(this.startDate.format(this.locale.format));
+			            $("#endcon2").val(this.endDate.format(this.locale.format));
+			    	}
+	            );
+	        }
+	        updateConfigexport();
+	        
+	    });
+		
+		
+	</script>
+</body>
+</html>
+
+

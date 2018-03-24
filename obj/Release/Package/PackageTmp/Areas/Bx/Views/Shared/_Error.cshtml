@@ -1,0 +1,37 @@
+﻿
+@model Bx_Common.Response
+@{
+    Layout = "~/Views/Shared/_customer.cshtml";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width" />
+    <title>错误</title>
+    <style type="text/css">
+		.errorimg{
+			text-align: center;
+			position: relative;
+		}
+		.ettorText{
+			width: 100%;
+			position: absolute;
+			line-height: 40px;
+			font-size: 28px;
+			color: red;
+			text-align: center;
+			top: 450px;
+			
+		}
+    </style>
+</head>
+<body>
+	<!-- <h3 style="color: red;"></h3> -->
+	<div class="errorimg">
+		<img src="~/images/errorimg.jpg"/>
+		<div class="ettorText">@Model.Message</div>
+	</div>
+</body>
+</html>

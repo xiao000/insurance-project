@@ -1,0 +1,106 @@
+﻿@model Bx_Core.Customer
+
+@{
+    ViewBag.Title = "修改终端用户信息";
+    Layout = null;
+}
+<script src="~/Scripts/jquery.validate.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+<script type="text/javascript">		
+			function OnSuccess(data) {
+				if(data.Status) {
+					var BootstrapDialog1=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+								window.location.href = data.Url;
+							}
+						}]
+					});
+					BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+					BootstrapDialog1.open();					
+				} else {
+					var BootstrapDialog2=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+					});
+					BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+					BootstrapDialog2.open();					
+				}
+			}
+
+			function OnFailure() {
+				var BootstrapDialog0=new BootstrapDialog({
+					title:"提示",
+					message: "Connection error",
+					buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+				});
+				BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+				BootstrapDialog0.open();
+			}
+    </script>
+
+<div class="ins_rightmian ins_fullcontent" id="ins_rightmain">
+    <div class="ins_rightcontent">     
+        <div class="content_main">
+            <div class="content_maintable">
+                <div id="content-body">
+                    @using (Ajax.BeginForm("Edit", "Customer",new AjaxOptions { Url = Url.Action("Edit", "Customer", new {area="admin" }), OnSuccess = "OnSuccess", OnFailure = "OnFailure" }, new { id="cusedit"}))
+                    {
+
+                        <ul class="users_info">
+                            <li class="noedit"><label>注册时间</label>@Html.TextBoxFor(m => m.CreateDateTime, new { disabled = "false" })</li>
+                            <li class="noedit"><label>用户账号</label>@Html.TextBoxFor(m => m.username, new { disabled = "false" }) </li>
+                            <li>
+                                <label>联系人</label>@Html.EditorFor(m => m.Contacts)
+                                @Html.ValidationMessageFor(m => m.Contacts)
+                            </li>
+                            <li class="noedit"><label>手机号码</label>@Html.TextBoxFor(m => m.Phone, new { disabled = "false" })  </li>
+
+                            <li>
+                                <label>所属区域</label>@Html.TextBoxFor(m => m.Area)
+                                @Html.ValidationMessageFor(m => m.Area)
+                            </li>
+                            
+                            <li>
+                                <label>公司名称</label>@Html.TextBoxFor(m => m.CorporateName)
+                                @Html.ValidationMessageFor(m => m.CorporateName)
+                            </li>
+                            <li>
+                                <label>邮箱地址</label>@Html.TextBoxFor(m => m.Email)
+                                @Html.ValidationMessageFor(m => m.Email)
+                            </li>
+                            <li>
+                                <label>详细地址</label>@Html.TextAreaFor(m => m.Address)
+                                @Html.ValidationMessageFor(m => m.Address)
+                            </li>
+                            <!--<li>
+                                <input type="submit" value="修改" class="commonbtn bigbtn mod_userinfor" />
+                            </li>-->
+                        </ul>
+                    }                   
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

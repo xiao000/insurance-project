@@ -1,0 +1,804 @@
+﻿@model Bx_Core.Policy
+@using Bx_Core
+@using Bx_Core.Types
+@{
+    ViewBag.Title = "修改保单";
+    Layout = null;
+}
+
+<link type="text/css" rel="stylesheet" href="~/css/common.css" />
+<link type="text/css" rel="stylesheet" href="~/css/index.css" />
+
+<style type="text/css">
+    .modal-dialog {
+        width: 1000px;
+    }
+	.imgBtn{
+		position: absolute;
+		top: 6px;
+		right: 40px;
+		display: none;
+		z-index: 10;
+	}
+	.up-section:hover .imgBtn{
+		display: block;
+	}
+	.maskBox{
+		position: absolute;
+		z-index: 100;
+		top:-41px;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0,0,0,0.5);
+		display: none;
+	}
+	.maskBox img{
+		width: 80%;
+		margin: 80px auto;
+		display: none;
+	}
+	#remarkbox{
+		width: 100%;
+		height: 100px;
+		margin: 10px 0;
+	}
+	.Prompt_text{
+		position: absolute;
+		top: 35px;
+		left: 0px;
+		color: red;
+		font-size: 14px;
+		line-height: 20px;
+		display: none;
+	}
+	.poladd .field-validation-error {
+	    position: absolute;
+	    left: 0;
+	    bottom: -6px;
+	}
+	#PolicyContent{
+			width: 518px;
+		}
+	#PayAmount,#BxPubRate{width: 126px;}
+	div[class*="col-"]{padding-bottom:18px;}
+</style>
+
+<script type="text/javascript">
+    function OnSuccess(data) {
+        if (data.Status) {
+            var BootstrapDialog1 = new BootstrapDialog({
+                title: "提示",
+                message: data.Message,
+                buttons: [{
+                    icon: "glyphicon glyphicon-remove",
+                    label: "关闭",
+                    action: function (dialogItself) {
+                        dialogItself.close();
+                        window.location.href = data.Url;
+                    }
+                }]
+            });
+            BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+            BootstrapDialog1.open();
+        } else {
+            var BootstrapDialog2 = new BootstrapDialog({
+                title: "提示",
+                message: data.Message,
+                buttons: [{
+                    icon: "glyphicon glyphicon-remove",
+                    label: "关闭",
+                    cssClass: "btn-danger",
+                    action: function (dialogItself) {
+                        dialogItself.close();
+                    }
+                }]
+            });
+            BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+            BootstrapDialog2.open();
+        }
+    }
+    function OnFailure() {
+        var BootstrapDialog0 = new BootstrapDialog({
+            title: "提示",
+            message: "Connection error",
+            buttons: [{
+                icon: "glyphicon glyphicon-remove",
+                label: "关闭",
+                cssClass: "btn-danger",
+                action: function (dialogItself) {
+                    dialogItself.close();
+                }
+            }]
+        });
+        BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+        BootstrapDialog0.open();
+    }
+
+</script>
+<div class="wrapper">
+    <div class="register-content">
+        @using (Html.BeginForm("edit", "policy", FormMethod.Post, new { id = "PolicyEdit", enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken();
+            <div class="poladd">
+                <div class="table text-right">
+				    <div class="row">
+				        <input type="hidden"  value="@Model.PolicyId" name="id" />
+				
+				        <div class="col-xs-2 ">商户名称：</div>
+				        <div class="col-xs-3 col-lg-2">@Html.TextBoxFor(m => m.CorporateName) @Html.ValidationMessageFor(m => m.CorporateName)</div>
+				        <div class="col-xs-2">被保险人：</div>
+				        <div class="col-xs-3 col-lg-3">@Html.TextBoxFor(m => m.Contacts, new { placeholder = "2-20个字符" }) @Html.ValidationMessageFor(m => m.Contacts)</div>
+				    </div>
+				    <div class="row">
+				        <div class="col-xs-2">用户类型：</div>
+				        <div class="col-xs-3 col-lg-2">
+				            @Html.DropDownListFor(a => a.UserType, new[] { new SelectListItem() { Text = "请选择用户类型", Value = "" }, new SelectListItem() { Text = "个体户", Value = "个体户" }, new SelectListItem() { Text = "企业单位", Value = "企业单位" } })
+				
+				            @Html.ValidationMessageFor(m => m.UserType)
+				        </div>
+				        <div class="col-xs-2">证件类型：</div>
+				        <div class="col-xs-3 col-lg-2">
+				            @Html.DropDownListFor(a => a.IDCardType, new[] { new SelectListItem() { Text = "请选择证件类型", Value = "" }, new SelectListItem() { Text = "身份证", Value = "身份证" }, new SelectListItem() { Text = "营业执照", Value = "营业执照" } })
+				
+				            @Html.ValidationMessageFor(m => m.IDCardType)
+				        </div>
+				    </div>
+				    <div class="row">
+				        <div class="col-xs-2">证件号码：</div>
+				        <div class="col-xs-3 col-lg-2">@Html.TextBoxFor(m => m.IDCardNum) @Html.ValidationMessageFor(m => m.IDCardNum)</div>
+				        <div class="col-xs-2">手机号码：</div>
+				        <div class="col-xs-3 col-lg-3">@Html.TextBoxFor(m => m.Phone) @Html.ValidationMessageFor(m => m.Phone)</div>
+				    </div>
+				    <div class="row">
+				        <div class="col-xs-2">承保内容：</div>
+				        <div class="col-xs-9 text-left">@Html.TextBoxFor(m => m.PolicyContent) @Html.ValidationMessageFor(m => m.PolicyContent)</div>
+				    </div>
+				    <div class="row">
+				        <div class="col-xs-2 col-lg-2">投保地址：</div>
+				        <div class="outer col-xs-5 col-lg-5 text-right">
+				            <select name="province" id="province" class="citycss">
+				                <option value="@Model.Province">@Model.Province</option>
+				            </select>
+				            @Html.ValidationMessageFor(m => m.Province)
+				
+				            <select name="city" id="city" class="citycss">
+				                <option value="@Model.City">@Model.City</option>
+				            </select>
+				            @Html.ValidationMessageFor(m => m.City)
+				
+				            <select name="town" id="town" class="citycss">
+				                <option value="@Model.Town">@Model.Town</option>
+				            </select>
+				            @Html.ValidationMessageFor(m => m.Town)
+				        </div>
+				        
+				        <div class="col-xs-4 col-lg-4 text-left">
+				            @Html.TextBoxFor(m => m.Address) @Html.ValidationMessageFor(m => m.Address)
+				        </div>
+				    </div>
+				    <div class="row">
+				        <div class="col-xs-2 col-lg-2">保险公司：</div>
+				        <div class="col-xs-9 col-lg-2 ">
+				            <select id="BxCorporateName" class="table_sel" data-live-search="true" name="BxCorporateName">
+				                <option value="@Model.BxCorporateName">@Model.BxCorporateName</option>
+				            </select>
+				            @Html.ValidationMessageFor(a => a.BxCorporateName)
+				
+				        </div>
+				        <div class="col-xs-2">保险行业：</div>
+				        <div class="col-xs-9 col-lg-2">
+				            <select id="BxIndustry" class="table_sel" name="BxIndustry">
+				                <option value="@Model.BxIndustry">@Model.BxIndustry</option>
+				            </select>
+				            @Html.ValidationMessageFor(m => m.BxIndustry)
+				        </div>
+				        <div class="col-lg-2 text-right visible-lg">保险类型：</div>
+				        <div class="col-xs-2 hidden-lg">保险类型：</div>
+				        <div class="col-xs-9 col-lg-2 text-left">
+				            <select id="BxType" class="table_sel" name="BxType">
+				                <option value="@Model.BxType">@Model.BxType</option>
+				            </select>
+				            @Html.ValidationMessageFor(m => m.BxType)
+				        </div>
+				    </div>
+				    <div class="row">
+				        <div class="col-xs-2 col-lg-2">承保期限：</div>
+				        <div class="col-xs-9 col-lg-2">
+				            <select id="PolicyDeadline_edit" class="table_sel" name="PolicyDeadline">
+				
+				
+				                @for (int i = 12; i <= 24;i++ )
+				                {
+				                var tmpMonth = i.ToString() + "个月";
+				                string ischecked="";
+				                if (Model.PolicyDeadline == tmpMonth) { ischecked = "selected"; }
+				                <option value="@tmpMonth"  @ischecked>@tmpMonth</option>
+				                }
+				
+				            </select>
+				            @Html.ValidationMessageFor(m => m.PolicyDeadline)
+				        </div>
+				        <div class="col-xs-2">保&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;额：</div>
+				        <div class="col-xs-9 col-lg-2">
+				            <select id="BxAmount" class="table_sel" name="BxAmount">
+				                <option value="@Model.BxAmount">@Model.BxAmount</option>
+				            </select>
+				            <span style="position: absolute;right: -20px;top: 1px;">万元</span>
+				            @Html.ValidationMessageFor(m => m.BxAmount)
+				        </div>
+				        <div class="col-lg-2 text-right visible-lg">纸质保单：</div>
+				        <div class="col-xs-2 hidden-lg">纸质保单：</div>
+				        <div class="col-xs-9 col-lg-2 text-left">
+				
+				            @Html.RadioButton("PaperPolicy", Model.PaperPolicy, Model.PaperPolicy==true)是
+				            @Html.RadioButton("PaperPolicy", Model.PaperPolicy, Model.PaperPolicy == false)否
+				
+				        </div>
+				    </div>
+				    <div class="row">
+				        <div class="col-xs-2">费&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;率：</div>
+				        <div class="col-xs-3 col-lg-2 text-left">
+				            @Html.TextBoxFor(a=>a.BxPubRate)
+				        </div>
+				        <div class="col-xs-2">付款金额：</div>
+				        <div class="col-xs-5 col-lg-2 text-left">
+				            @Html.TextBoxFor(a=>a.PayAmount)
+				            <span class="hidden-lg" style="position: absolute;right: 220px;top:4px;">元</span>
+                        <span class="visible-lg" style="position: absolute;right: -6px;top: 0px;">元</span>
+				            <p class="Prompt_text">余额不足</p>
+				        </div>
+				        <div class="col-lg-2 text-right visible-lg">账号余额：</div>
+				        <div class="col-xs-2 hidden-lg">账号余额：</div>
+				        <div class="col-xs-9 col-lg-2 text-left">
+				            <span id="deposit" class="deposit"></span>
+				            <span>元</span>
+				            <a tabindex="0" class="btn btn-link rechargelink" role="button" data-container="body" data-toggle="popover" data-placement="bottom" data-trigger="focus" title="充值" data-content="充值网址：<a href='http://www.cisa110.com' target='_blank'>www.cisa110.com</a>">充值</a>
+				        </div>
+				    </div>
+				    <div class="row">
+				        <div class="col-xs-2">备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：</div>
+				        <div class="col-xs-9">
+				            @Html.TextAreaFor(m => m.PolRemark)@Html.ValidationMessageFor(m => m.PolRemark)
+				        </div>
+				    </div>
+				    @if (ViewBag.PolicyFileList != null)
+				    {
+				    <div class="row">
+				        <div class="col-xs-12">
+				            <div class="img-box full" style="">
+				                <section class=" img-section">
+				                    <div class="z_photo upimg-div clear">
+				                        <!-- 图片渲染部分 -->
+				                        @foreach (PolicyFile item in ViewBag.PolicyFileList as List<PolicyFile>)
+				                        {
+				                        <section class="up-section fl">
+				                            <span class="up-span"></span>
+				                            <img class="close-upimg" src="~/images/a7.png" picid="@item.PolicyFileId">
+				                            <img class="imgBtn" src="~/images/a8.png">
+				                            <img class="up-img" src="@item.FilePathName.Substring(1)" px="@item.PolicyFileId">
+				                            <p class="img-name-p">u=122849036,416130399&amp;fm=27&amp;gp=0.jpg</p>
+				                            <input id="taglocation" name="taglocation" value="" type="hidden">
+				                            <input id="tags" name="tags" value="" type="hidden">
+				                            <input class='picName' type='hidden' style='display:none;' name='picName' value="@item.PolicyFileId">
+				                        </section>}
+				                        <!-- //////////////////// -->
+				                        @if ((ViewBag.PolicyFileList as List<PolicyFile>).Count<5)
+				                            {
+				                            <section class="z_file fl">
+				                                <!-- 图片小于5张就渲染出这，大于等于5张就不渲染 -->
+				                                <img src="../images/a11.png" class="add-img">
+				                                <input type="file" name="PolicyAnnex" id="file" class="file" value="" accept="image/jpg,image/jpeg,image/png,image/bmp" multiple />
+				                                <!-- ///////////////////////////// -->
+				                            </section>
+				                            }
+				                    </div>
+				                </section>
+				            </div>
+				            <aside class="mask works-mask">
+				                <div class="mask-content">
+				                    <p class="del-p">您确定要删除图片吗？</p>
+				                    <p class="check-p"><span class="del-com wsdel-ok">确定</span><span class="wsdel-no">取消</span></p>
+				                </div>
+				            </aside>
+				        </div>
+				    </div>
+				    }
+				</div>
+                <p class="redcolor">
+					<a class="BxClauses" name="BxClauses" px="@Model.ProductId">查看保单条款内容</a>
+				</p>
+				<div class="maskBox"></div>
+				
+				<div class="reasonbox">
+					<div class="titlepanelbg"><div class="titlepanel">投保失败原因<span class="glyphicon glyphicon-menu-down"></span></div></div>
+					<div class="reasoncontent">
+                        @if (ViewBag.APolicyErrReasonList != null)
+                        {
+                            <div class="panelbox">
+                                <ul class="bxReason">
+                                    <li class="top">
+                                        <div class="time">时间</div>
+                                        <div class="reason">原因</div>
+                                    </li>
+                                    @foreach (UnPolicyReason item in ViewBag.APolicyErrReasonList as List<UnPolicyReason>)
+                                    {
+                                   
+                                    <li class="reasondata">
+                                        <div class="time">
+                                            @item.CreateTime
+                                        </div>
+                                        <div class="reason">
+                                            @item.APolicyErrReason
+                                        </div>
+                                    </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+					</div><!--reasoncontent结束-->
+				</div><!--reasonbox结束-->
+				
+            </div>
+            <!-- <input type="submit" value="提交" /> -->
+        }
+    </div>
+</div>
+
+<script type="text/javascript" src="~/js/city/area.js"></script>
+<script type="text/javascript" src="~/js/city/select.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		if($(".panelbox ul li").hasClass("reasondata")){
+			$(".reasonbox").css("display","block");
+		}else{
+			$(".reasonbox").css("display","none");
+		}
+	});
+	
+	$(function(){
+		$(".reasonbox .titlepanel").on("click",function(){
+			if($(this).find("span").hasClass("glyphicon-menu-down")){
+				$(this).find("span").removeClass("glyphicon-menu-down");
+				$(this).find("span").addClass("glyphicon-menu-up");
+			}else{
+				$(this).find("span").removeClass("glyphicon-menu-up");
+				$(this).find("span").addClass("glyphicon-menu-down");
+			}
+			$(".reasoncontent").slideToggle("slow");
+		});
+	
+		// 账号余额
+		var deposit=$.ajax({url:"/ReCharge/GetReCharge",type:"POST",async:false});
+		$("#deposit").html(deposit.responseText);
+
+		$(function () { 
+			$("[data-toggle='popover']").popover({
+				html : true
+			});
+		});
+		
+		// 保险公司
+		$.ajax({
+			url: "/policy/GetUseableBxCorporateName",
+			type: "POST",
+			dataType: "json",
+			success: function(data){
+				//console.log(data);
+				for (var i = 0; i < data.Data.length; i++) {
+					$("#BxCorporateName").append("<option value='"+data.Data[i]+"'>"
+							+ data.Data[i] + "</option>");
+				}
+			}
+		});
+		// 保险行业
+		$("#BxCorporateName").change(function(){
+			var bxcorpname = $(this).val();
+			//console.log(bxcorpname);
+			$("#BxIndustry").val("");
+			$.ajax({
+				url: "/policy/GetUseableBxIndustry",
+				type: "POST",
+				data: {bxcorpname:bxcorpname},
+				dataType: "json",
+				success: function(data){
+					//console.log(data);
+					$("#BxIndustry").html('<option value="">请选择行业</option>');
+					$("#BxType").html('<option value="">请选择保险种类</option>');
+					for (var i = 0; i < data.Data.length; i++) {
+						$("#BxIndustry").append("<option value='"+data.Data[i]+"'>"
+								+ data.Data[i] + "</option>");
+					}
+				}
+			});
+		});
+		// 保险类型
+		$("#BxIndustry").change(function(){
+			var bxindustry = $(this).val(),
+				bxcorpname = $("#BxCorporateName").val();
+			//console.log(bxcorpname,bxindustry);
+			$("#BxType").val("");
+			$.ajax({
+				url: "/policy/GetUseableBxtype",
+				type: "POST",
+				data: {
+					bxcorpname:bxcorpname,
+					bxindustry:bxindustry
+				},
+				dataType: "json",
+				success: function(data){
+					//console.log(data);
+					$("#BxType").html('<option value="">请选择保险种类</option>');
+					for (var i = 0; i < data.Data.length; i++) {
+						$("#BxType").append("<option value='"+data.Data[i]+"'>"
+								+ data.Data[i] + "</option>");
+					}
+				}
+			});
+		});
+		// 保额
+		$("#BxType").change(function(){
+			var bxtype = $(this).val(),  // 类型
+				bxindustry = $("#BxIndustry").val(), // 行业
+				bxcorpname = $("#BxCorporateName").val(); // 公司
+
+			//console.log(bxcorpname,bxindustry,bxtype);
+			$("#BxAmount").val("");
+			$.ajax({
+				url: "/policy/GetUseableBxar",
+				type: "POST",
+				data: {
+					bxcorpname:bxcorpname, // 公司
+					bxindustry:bxindustry,  // 行业
+					bxtype:bxtype  // 类型
+				},
+				dataType: "json",
+				success: function(data){
+					//console.log(data);
+					$("#BxAmount").html('');
+					var totalMin = data.Data[0].BxAmountFrom,
+						totalMax = parseInt(data.Data[data.Data.length-1].BxAmountTo);
+					//console.log(data.Data.length-1);
+					//console.log(totalMax);
+					var totalIndex =[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285,290,295,300,305,310,315,320,325,330,335,340,345,350,355,360,365,370,375,380,385,390,395,400,405,410,415,420,425,430,435,440,445,450,455,460,465,470,475,480,485,490,495,500];
+					for (var i = 0; i < totalIndex.length; i++) {
+						//	console.log('i='+i);
+						for(var n = 0; n < data.Data.length; n++){
+							if(totalIndex[i] >= data.Data[n].BxAmountFrom && totalIndex[i]<= data.Data[n].BxAmountTo){
+								//console.log('n='+n);
+								var NeedImg_text = '';
+								$("#BxAmount").append('<option BxPubRate="'+data.Data[n].BxPubRate+'" needImg="'+data.Data[n].NeedImg+'" value="'+totalIndex[i]+'">'+ totalIndex[i] + '</option>');
+								//$("#BxPubRate").val(data.Data[n].BxPubRate);
+								$("#PayAmount").val(data.Data[n].BxPubRate*$("#BxAmount").val());
+								
+							}
+						}
+					}
+					var BxAmount_val = $("#BxAmount").val();
+					var BxPubRate =  $("#BxAmount").find('option[value="'+BxAmount_val+'"]').attr('BxPubRate');
+					$("#BxPubRate").val(BxPubRate);
+					$("#PayAmount").val((Number(BxPubRate*$("#BxAmount").val()*10000/12*parseInt($('#PolicyDeadline_edit').val()))).toFixed(2));
+					//余额的提示
+					if(parseFloat($("#PayAmount").val())>parseFloat(deposit.responseText)){
+						$(".Prompt_text").show();
+					}else{
+						$(".Prompt_text").hide();
+					}
+					// 条款
+					$(".BxClauses").attr("px",data.Data[0].ProductId);
+					if(data.Data[0].NeedImg=='true'){
+						$(".full").show().find(".z_file").html('').append('<img src="../images/a11.png" class="add-img"><input type="file" name="file" id="file" class="file" value="" accept="image/jpg,image/jpeg,image/png,image/bmp" multiple />');
+						$(".up-section").remove();
+					} else{
+						$(".full").hide().find(".z_file").html('')
+						$(".up-section").remove();
+					}
+				}
+			});
+		});
+		// 付款金额 + 是否上要传图片
+		$("#BxAmount").change(function(){
+			// 付款金额
+			var BxAmount_val = $("#BxAmount").val();
+			var BxPubRate =  $("#BxAmount").find('option[value="'+BxAmount_val+'"]').attr('BxPubRate');
+			$("#BxPubRate").val(BxPubRate);
+
+			$("#PayAmount").val((Number($("#BxAmount").val()*$("#BxPubRate").val()*10000/12*parseInt($('#PolicyDeadline_edit').val()))).toFixed(2));
+			// 是否上要传图片
+			var	NeedImg = $("#BxAmount").find('option[value="'+BxAmount_val+'"]').attr('needImg');
+			
+			if(NeedImg=='true'){
+				//console.log('NeedImg1='+NeedImg);
+				if($(".full").length==0){
+					$('.poladd .table').append('<div>'
+													+'<div colspan="6">'
+														+'<div class="img-box full" style="display:none">'
+															+'<section class=" img-section">'
+																+'<div class="z_photo upimg-div clear" >'
+																	+'<section class="z_file fl"></section>'
+																+'</div>'
+															+'</section>'
+															+'<input type="hidden" name="PolicyAnnex" value="">'
+														+'</div>'
+														+'<aside class="mask works-mask">'
+															+'<div class="mask-content">'
+																+'<p class="del-p">您确定要删除图片吗？</p>'
+																+'<p class="check-p"><span class="del-com wsdel-ok">确定</span><span class="wsdel-no">取消</span></p>'
+															+'</div>'
+														+'</aside>'
+													+'</div>'
+												+'</div>');
+				}else{
+					$(".full").show().find(".z_file").html('').append('<img src="../images/a11.png" class="add-img"><input type="file" name="file" id="file" class="file" value="" accept="image/jpg,image/jpeg,image/png,image/bmp" multiple />');
+					$(".up-section").remove();
+				};
+			} else{
+				if($(".full").length==0){
+					$('.poladd .table').append('<div>'
+													+'<div colspan="6">'
+														+'<div class="img-box full" style="display:none">'
+															+'<section class=" img-section">'
+																+'<div class="z_photo upimg-div clear" >'
+																	+'<section class="z_file fl"></section>'
+																+'</div>'
+															+'</section>'
+															+'<input type="hidden" name="PolicyAnnex" value="">'
+														+'</div>'
+														+'<aside class="mask works-mask">'
+															+'<div class="mask-content">'
+																+'<p class="del-p">您确定要删除图片吗？</p>'
+																+'<p class="check-p"><span class="del-com wsdel-ok">确定</span><span class="wsdel-no">取消</span></p>'
+															+'</div>'
+														+'</aside>'
+													+'</div>'
+												+'</div>');
+				}else{
+					$(".full").hide().find(".z_file").html('')
+					$(".up-section").remove();
+				};
+			}
+			//余额的提示
+
+			if(parseFloat($("#PayAmount").val())>parseFloat(deposit.responseText)){
+				$(".Prompt_text").show();
+			}else{
+				$(".Prompt_text").hide();
+			}
+		});
+		$('input[type=file]').change(function(){
+			//console.log($('input[type=file]')[0].files[0]);
+		});
+		$('#PolicyDeadline_edit').change(function(){
+			$("#PayAmount").val((Number($("#BxAmount").val()*$("#BxPubRate").val()*10000/12*parseInt($('#PolicyDeadline_edit').val()))).toFixed(2));
+		});
+		////////////////////////////////////////////////////////////////////////
+		// 图片上传
+		var imageNum =10;   // 最多上传5张图
+		var delParent;
+		var defaults = {
+			fileType : [ "jpg", "png", "bmp", "jpeg","JPG","PNG","JPEG","BMP" ], // 上传文件的类型
+			fileSize : 1024 * 1024 * 10, // 上传文件的大小 10M
+			count : 0
+		};
+			/*点击图片的文本框*/
+		$(document).on('change','#file',function(){
+			var idFile = $(this).attr("id");
+			var file = document.getElementById(idFile);
+			var imgContainer = $(this).parents(".z_photo"); //存放图片的父亲元素
+			var fileList = file.files; //获取的图片文件
+			//console.log(fileList+"======filelist=====");
+			var input = $(this).parent();//文本框的父亲元素
+			var imgArr = [];
+			//遍历得到的图片文件
+			var numUp = imgContainer.find(".up-section").length;
+			var totalNum = numUp + fileList.length;  //总的数量
+			//console.log('numUp='+numUp);
+			if(fileList.length > imageNum || totalNum > imageNum ){
+				alert("上传图片数目不可以超过5个，请重新选择");  //一次选择上传超过5个 或者是已经上传和这次上传的到的总数也不可以超过5个
+			}
+			else if(numUp < imageNum){
+				fileList = validateUp(fileList);
+				for(var i = 0;i<fileList.length;i++){
+					var imgUrl = window.URL.createObjectURL(fileList[i]);
+						imgArr.push(imgUrl);
+					var $section = $("<section class='up-section fl loading'>");
+						imgContainer.prepend($section);
+					var $span = $("<span class='up-span'>");
+						$span.appendTo($section);
+
+					var $img0 = $("<img class='close-upimg'>").on("click",function(event){
+						$(".wsdel-ok").attr("px",$(this).siblings(".up-img").attr("px"));
+						//console.log('dd'+$(".wsdel-ok").attr("px"));
+						event.preventDefault();
+						event.stopPropagation();
+						$(".works-mask").show();
+						delParent = $(this).parent();
+					});
+					$img0.attr("src","../images/a7.png").appendTo($section);
+					/////////////////////////////////////////////////////////////////////
+					// 放大图
+					var $imgBtn0 = $("<img class='imgBtn'>").on("click",function(event){
+							var img_src = $(this).siblings(".up-img").attr('src');
+							$(".maskBox").css("height",$(".modal-dialog").height());
+							$(".maskBox").show().append('<img src="'+img_src+'">');
+							$(".maskBox img").show();
+						}); 
+						$imgBtn0.attr("src","../images/a8.png").appendTo($section);
+					/////////////////////////////////////////////////////////////////////
+					//var $img = $("<img class='up-img up-opcity'>");
+					//	$img.attr("src",imgArr[i]);
+					//	$img.appendTo($section);
+					var $p = $("<p class='img-name-p'>");
+						$p.html(fileList[i].name).appendTo($section);
+					var $input = $("<input id='taglocation' name='taglocation' value='' type='hidden'>");
+						$input.appendTo($section);
+					var $input2 = $("<input id='tags' name='tags' value='' type='hidden'/>");
+						$input2.appendTo($section);
+						uploadImg('/Policy/picUpload/', fileList[i],$section);
+				}
+			}
+			//setTimeout(function(){
+			//	$(".up-section").removeClass("loading");
+			//	$(".up-img").removeClass("up-opcity");
+			//},450);
+			numUp = imgContainer.find(".up-section").length;
+			if(numUp >= imageNum){
+				$(this).parent().hide();
+			}
+			//input内容清空
+			// $(this).val("");
+		});
+		$(".z_photo").delegate(".close-upimg","click",function(event){
+			$(".wsdel-ok").attr("px",$(this).siblings(".up-img").attr("px"));
+			//console.log('dd'+$(".wsdel-ok").attr("px"));
+			event.preventDefault();
+			event.stopPropagation();
+			$(".works-mask").show();
+			delParent = $(this).parent();
+		});
+		$(".wsdel-ok").on("click",function(){
+			var picID = $(this).attr("px")
+			//console.log(picID);
+			$.ajax({
+				url: "/Policy/picDelete/",
+				type: "POST",
+				data:{id:picID},
+				dataType: "json",
+				success: function(data){
+					if (data.Status == 1) {
+						$(".works-mask").hide();
+						var numUp = delParent.siblings().length;
+						if(numUp <= imageNum){
+							delParent.parent().find(".z_file").show();
+						}
+						delParent.remove();
+					}else if (data.Status == 0) {
+						$(".works-mask").hide();
+					}
+				},
+				error : function(e) {
+					alert("删除失败");
+					$(".works-mask").hide();
+				}
+			});
+		});
+		$(".wsdel-no").click(function(){
+			$(".works-mask").hide();
+		});
+		function validateUp(files){ 
+			var arrFiles = [];//替换的文件数组
+			for(var i = 0, file; file = files[i]; i++){
+				//获取文件上传的后缀名
+				var newStr = file.name.split("").reverse().join("");
+				if(newStr.split(".")[0] != null){
+						var type = newStr.split(".")[0].split("").reverse().join("");
+						//console.log(type+"===type===");
+						if(jQuery.inArray(type, defaults.fileType) > -1){
+							// 类型符合，可以上传
+							if (file.size >= defaults.fileSize) {
+								alert(file.size);
+								alert('您这个"'+ file.name +'"文件大小过大');	
+							} else {
+								// 在这里需要判断当前所有文件中
+								arrFiles.push(file);	
+							}
+						}else{
+							alert('您这个"'+ file.name +'"上传类型不符合');	
+						}
+					}else{
+						alert('您这个"'+ file.name +'"没有类型, 无法识别');	
+					}
+			}
+			return arrFiles;
+		} 
+		function uploadImg(opt, file, obj) {
+			$("#imguploadFinish").val(false);
+			// 验证通过图片异步上传
+			var url = opt;
+			var data = new FormData();
+			// $('#file')[0].files[0]
+			// data.append("path", opt.formData.path);
+			data.append("file", file);
+			$.ajax({
+				type : 'POST',
+				url : url,
+				data : data,
+				processData : false,
+				contentType : false,
+				dataType : 'json',
+				success : function(data) {
+					console.log(data);
+					// obj.remove(); 
+					// 上传成功 
+					if (data.Status == 1) { 
+						$("#imguploadFinish").val(true);
+						var htmlStr = "<input class='picName' type='hidden' style='display:none;' name='"
+								+ "picName"
+								+ "' value='"
+								+ data.Data
+								+ "'>";
+						var $img = $("<img class='up-img up-opcity'>");
+							$img.attr("src",data.Url);
+							$img.attr("px",data.Data);
+							$img.appendTo(obj);
+						obj.append(htmlStr);
+						//if (successCallBack) {
+						//	successCallBack(data);
+						//}
+						$(".up-section").removeClass("loading");
+						$(".up-img").removeClass("up-opcity");
+					}else if (data.Status == 0) {
+						obj.remove();
+						$("#imguploadFinish").val(false);
+						//if (errorCallBack) {
+						//	errorCallBack(data.url);
+						//}
+					}
+				},
+				error : function(e) {
+					obj.remove();
+					var err = "上传失败，请联系管理员！";
+					$("#imguploadFinish").val(false);
+					// if (errorCallBack) {
+					//	errorCallBack(err);
+					//}
+				}
+			});
+		}
+		////////////////////////////////////////////////////////////////////////
+
+		// 保险条款
+		$(".BxClauses").on("click",function(){
+			var BxClauses = $(this).attr("px");
+			var clausesDialog = new BootstrapDialog({
+				title: "保险条款",
+				message: function(dialog) {
+					var $message = $('<div></div>');
+					var pageToLoad = dialog.getData('pageToLoad');
+					$message.load(pageToLoad);
+					return $message;
+				},
+				data: {
+					'pageToLoad': '@Url.Action("GetBxClauses")/'+BxClauses
+				},
+				buttons: [{
+					icon: "glyphicon glyphicon-plus",
+					label: "返回",
+					action: function(dialogItself) {
+						dialogItself.close();
+					}
+				}]
+			});
+			clausesDialog.open();
+		});
+	});
+
+</script>
+
+
+
+
+

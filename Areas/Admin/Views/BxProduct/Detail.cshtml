@@ -1,0 +1,227 @@
+﻿@model Bx_Core.Product
+@using Bx_Core;
+@{
+    ViewBag.Title = "产品详情";
+    Layout = null;
+}
+
+
+<style type="text/css">
+	.modal-dialog{
+		width: 1000px;
+	}
+</style>
+	<script type="text/javascript">		
+			function OnSuccess(data) {
+				if(data.Status) {
+					var BootstrapDialog1=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+								window.location.href = data.Url;
+							}
+						}]
+					});
+					BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+					BootstrapDialog1.open();					
+				} else {
+					var BootstrapDialog2=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+					});
+					BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+					BootstrapDialog2.open();					
+				}
+			}
+
+			function OnFailure() {
+				var BootstrapDialog0=new BootstrapDialog({
+					title:"提示",
+					message: "Connection error",
+					buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+				});
+				BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+				BootstrapDialog0.open();
+			}
+    </script>	
+<script type="text/javascript">
+		$(function(){
+			
+			$(".BxPriRate").bind('input propertychange', function() {
+				var $this = $(this).val(),
+					$text = $(this).parents(".l_insuredAmount_box").index();
+				console.log($(this).index(),$(this).val());
+				//$('.msg').html($(this).val().length + ' characters');
+
+			});
+			
+			var bd_status=$("#bd_status").val();
+			console.log(bd_status);
+			if(bd_status==5){
+				$(".modal-footer").css("display","block");
+			}else{
+				$(".modal-footer").css("display","none");
+			}
+		});
+</script>
+	<div class="wrapper">
+			<div class="register-content">
+				@using (Ajax.BeginForm("Publiced", "BxProduct", new AjaxOptions { Url = Url.Action("Publiced", "BxProduct", new { area = "Admin" }), OnSuccess = "OnSuccess", OnFailure = "OnFailure" }, new { id="BxProductDetail"})){
+					<div class="table">
+						<div class="term">
+							<div class="title">保险公司</div>
+							<div class="inputBox">
+                                @Html.HiddenFor(a => a.ProductId, new {name="id" })
+                                @Html.TextBoxFor(a=>a.BxCreateCorporateName, new { name="BxCreateCorporateName", disabled="disabled"  })
+								@Html.Hidden("bd_status",(int)Model.Status)               <!--(int)取数值-->
+							</div>
+							<div class="title">合同编号</div>
+							<div class="inputBox" style="width: 220px;">
+                                
+                                @Html.TextBoxFor(a=>a.BxProductNumber, new { name="BxProductNumber", disabled="disabled"  })
+								
+							</div>
+						</div>
+						<div class="term selectpicker_term">
+							<div class="title">保险行业</div>
+							<div class="inputBox">
+								@Html.TextBoxFor(a=>a.BxIndustry, new { name="BxIndustry", disabled="disabled"  })
+                                						
+							</div>							
+							<div class="title">保险类型</div>
+							<div class="inputBox_r">
+                                						@Html.TextBoxFor(a=>a.BxType, new { name="BxType", disabled="disabled"  })
+							</div>
+						</div>
+						<div class="term">
+							<!-- TODO欣 -->
+                            @{
+                                List<Bxar> _bxars=(List<Bxar>)ViewBag.Bxars;
+                                
+                            }
+                              @for (int i = 0; i < _bxars.Count; i++)
+                              {
+                                  var checkit = "";
+                                  if (_bxars[i].NeedImg.HasValue)
+                                  {
+                                      if (_bxars[i].NeedImg == true)
+                                      {
+                                          checkit = "checked";
+
+                                      }
+
+                                  }
+                                  else
+                                  {
+                                      checkit = "";    
+                                  }
+                             
+
+                            
+		<div class="l_insuredAmount_box insuredAmount_no">
+                                <div class="title">保额</div>
+                                <div class="inputBox">
+                                    <input readonly="readonly" data-val="true" data-val-number="字段 保额从 必须是一个数字。" data-val-regex="保额从必须为正整数" data-val-regex-pattern="^[1-9]\d*$" data-val-required="保额从还未添哦" id="[0].BxAmountFrom" name="[@i].BxAmountFrom" type="text" value="@ViewBag.Bxars[i].BxAmountFrom" />
+                                    <span class="field-validation-valid" data-valmsg-for="[@i].BxAmountFrom" data-valmsg-replace="true"></span>
+
+                                    万到
+                                    <input readonly="readonly" data-val="true" data-val-number="字段 保额到 必须是一个数字。" data-val-regex="保额到必须为正整数" data-val-regex-pattern="^[1-9]\d*$" data-val-required="保额到还未添哦" id="[0].BxAmountTo" name="[@i].BxAmountTo" type="text" value="@ViewBag.Bxars[i].BxAmountTo" />万
+                                    <span class="field-validation-valid" data-valmsg-for="[@i].BxAmountTo" data-valmsg-replace="true"></span>
+                                </div>
+                                <div class="title">费率</div>
+                                <div class="inputBox_r">
+                                    <input readonly="readonly" data-val="true" data-val-number="字段 费率 必须是一个数字。" data-val-regex="费率必须为1-4位小数" data-val-regex-pattern="^[0-9]+(.[0-9]{1,4})?$" data-val-required="费率还未添哦" id="[0].BxPriRate" name="[@i].BxPriRate" type="text" value="@ViewBag.Bxars[i].BxPriRate" />
+                                    <span class="field-validation-valid" data-valmsg-for="[@i].BxPriRate" data-valmsg-replace="true"></span>
+                                    <span class="glyphicon glyphicon-plus plusBtn" style="display: none;"></span>
+		        <div class="title len">图片是否要上传</div>
+		        					<!--<input type="radio" name="[@i].NeedImg" value="true" @checkit />是
+									<input type="radio" name="[@i].NeedImg" value="false" @checkit />否-->
+                                    <input type="checkbox" name="[@i].NeedImg" value="true" onclick="return false;" @checkit><span>是</span>
+                                </div>
+                            </div>
+                            <div class="l_insuredAmount_box insuredAmount_no">
+                            	<div class="title">公有费率</div>
+                                <div class="inputBox_r">
+                                    <input class="BxPriRate" data-val="true" data-val-number="字段 费率 必须是一个数字。" data-val-regex="费率必须为1-4位小数" data-val-regex-pattern="^[0-9]+(.[0-9]{1,4})?$" data-val-required="费率还未添哦" id="[0].BxPubRate" name="[@i].BxPubRate" type="text" value="@ViewBag.Bxars[i].BxPubRate" />
+                                    <span class="field-validation-valid" data-valmsg-for="[@i].BxPubRate" data-valmsg-replace="true"></span>
+                                    <span class="glyphicon glyphicon-plus plusBtn" style="display: none;"></span>
+                                </div>
+                            </div>
+							}
+
+						</div>
+						<div class="term">
+							<div class="title">保险条款</div>
+							<!--<textarea name="BxClauses" id="BxClauses" cols="20" rows="2" class="ckeditor" readonly="readonly"></textarea>-->
+                            @Html.TextAreaFor(a => a.BxClauses, new {id="BxClauses", cols="20", rows="2",@class="ckeditor",readOnly="true"})
+							
+							<script>
+								CKEDITOR.replace( 'BxClauses');
+							</script>
+						</div>
+						<div class="term">
+							<div class="title">备注</div>
+                            @Html.TextAreaFor(a => a.BxRemark, new {@class="l_textarea", rows="3", name="BxRemark", disabled="disabled"  })
+							
+						</div>
+						
+						@{
+                            List<UnPubReason> _unpubreasons = (List<UnPubReason>)ViewBag.UnPubReason;
+                            
+                        }
+                        @if (_unpubreasons.Count()>0)
+                       	{ 
+						<div class="term">
+							<div class="title">原因</div>
+                            
+							<ul class="bxReason">
+								<li class="top">
+									<div class="time">
+										时间
+									</div>
+									<div class="reason">
+										原因
+									</div>
+								</li>
+								@foreach (UnPubReason iterm in ViewBag.UnPubReason)
+								{
+								<li >
+									<div class="time">
+										@iterm.CreatTime
+									</div>
+									<div class="reason">
+										@iterm.UnPUbReason
+									</div>
+									
+								</li>
+								}
+                            
+							</ul>
+                              
+						</div>
+		 				}
+						
+					</div>
+				}
+			</div>
+		</div>
+		

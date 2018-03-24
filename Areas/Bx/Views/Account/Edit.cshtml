@@ -1,0 +1,158 @@
+﻿@model Bx_Core.BxAccount
+
+@{
+    ViewBag.Title = "修改";
+    Layout = null;
+}
+<script src="~/Scripts/jquery.validate.js"></script>
+    	<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    	<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+	<script type="text/javascript">		
+			function OnSuccess(data) {
+				if(data.Status) {
+					var BootstrapDialog1=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+								window.location.href = data.Url;
+							}
+						}]
+					});
+					BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+					BootstrapDialog1.open();					
+				} else {
+					var BootstrapDialog2=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+					});
+					BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+					BootstrapDialog2.open();					
+				}
+			}
+
+			function OnFailure() {
+				var BootstrapDialog0=new BootstrapDialog({
+					title:"提示",
+					message: "Connection error",
+					buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+				});
+				BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+				BootstrapDialog0.open();
+			}
+    </script>
+
+	      <div class="wrapper">
+			<div class="register-box">
+				<div class="register-content">
+					@using (Ajax.BeginForm("Edit", "Account", new AjaxOptions { Url = Url.Action("Edit", "Account", new { area = "Bx" }), OnSuccess = "OnSuccess", OnFailure = "OnFailure" }, new { id="InfoEdit"})){
+					<div class="form-group">
+						<label>登录账户</label>@Html.TextBoxFor(m => m.username, new { disabled = "false" })
+					</div>				
+					<div class="form-group">
+						<label>联系人</label>@Html.TextBoxFor(m => m.Contacts, new { placeholder = "2-20个字符" }) @Html.ValidationMessageFor(m=>m.Contacts)
+					</div>
+					<div class="form-group">
+						<label>手机号码</label>@Html.TextBoxFor(m => m.Phone, new { placeholder = "手机号码" }) @Html.ValidationMessageFor(m=>m.Phone)
+					</div>
+					<div class="form-group">
+						<label>公司名称</label>
+						@Html.TextBoxFor(m => m.CorporateName, new { disabled = "false" })
+					</div>
+					<div class="form-group">
+						<label>邮箱地址</label>@Html.TextBoxFor(m=>m.Email) @Html.ValidationMessageFor(m=>m.Email)
+					</div>
+					<div class="form-group">
+						<label>详细地址</label>@Html.TextAreaFor(m=>m.Address) @Html.ValidationMessageFor(m=>m.Address)
+					</div>
+					}
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">			
+		$(function() {  	        
+		        //保险类型
+		        $("#CorporateName").selectpicker({  
+		            noneSelectedText : '请选择' //默认显示内容  
+		        }); 
+		        
+		        $(window).on('load', function() {  //初始化刷新数据 
+		            $('#CorporateName').selectpicker('val', '');  
+		            $('#CorporateName').selectpicker('refresh');  
+		        });  
+		  
+		        //下拉数据加载  
+		        $.ajax({  
+		            type : 'get',  
+		            url : "/admin/BxCorporate/getselect",  
+		            dataType : 'json',  
+		            success : function(data) {//返回list数据并循环获取  
+		                var select = $("#CorporateName");  
+		                for (var i = 0; i < data.Data.length; i++) {  
+		                    select.append("<option value='"+data.Data[i].text+"'>"  
+		                            + data.Data[i].text + "</option>");  
+		                }  
+		                $('#CorporateName').selectpicker('val', '');  
+		                $('#CorporateName').selectpicker('refresh');  
+		            }  
+		        });  
+		        
+		        $(".bxcorporateset").click(function(){
+		        	var getlistDialog = new BootstrapDialog({
+						title: "<span class='glyphicon glyphicon-plus'></span>保险公司名称列表",
+						message: function(dialog) {
+
+							var $message = $('<div></div>');
+							var pageToLoad = dialog.getData('pageToLoad');
+							$message.load(pageToLoad);
+
+							return $message;
+						},
+						data: {
+						    'pageToLoad': '@Url.Action("list", "BxCorporate", new {area="admin" })'
+						},
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								$("#CorporateName").html("");
+								$.ajax({
+									type: 'get',
+									url: "/admin/BxCorporate/getselect",
+									dataType: 'json',
+									success: function(data) { //返回list数据并循环获取  
+										var select = $("#CorporateName");
+										for(var i = 0; i < data.Data.length; i++) {
+											select.append("<option value='" + data.Data[i].text + "'>" +
+												data.Data[i].text + "</option>");
+										}
+										$('#CorporateName').selectpicker('val', '');
+										$('#CorporateName').selectpicker('refresh');
+									}
+								});
+								dialogItself.close();
+							}
+						}]
+					});
+					getlistDialog.open();
+		        });
+		    });  
+		</script>

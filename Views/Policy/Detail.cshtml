@@ -1,0 +1,547 @@
+﻿@model Bx_Core.Policy
+@using Bx_Core
+@using Bx_Core.Types
+
+@{
+    ViewBag.Title = "保单详情";
+    Layout = null;
+    
+}
+
+<link type="text/css" rel="stylesheet" href="~/css/common.css" />
+<link type="text/css" rel="stylesheet" href="~/css/index.css" />
+<style type="text/css">
+    .modal-dialog {
+        width: 1000px;
+    }
+	
+	.maskBox{
+		position: absolute;
+		z-index: 100;
+		top:-41px;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0,0,0,0.5);
+		display: none;
+	}
+	.maskBox img{
+		width: 80%;
+		margin: 80px auto;
+		display: none;
+	}
+	div[class*="col-"]{padding:10px 0;}
+	.row{width:100%;border-bottom:1px solid #ECECEC;}
+</style>
+
+<script type="text/javascript">
+    function OnSuccess(data) {
+        if (data.Status) {
+            var BootstrapDialog1 = new BootstrapDialog({
+                title: "提示",
+                message: data.Message,
+                buttons: [{
+                    icon: "glyphicon glyphicon-remove",
+                    label: "关闭",
+                    action: function (dialogItself) {
+                        dialogItself.close();
+                        window.location.href = data.Url;
+                    }
+                }]
+            });
+            BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+            BootstrapDialog1.open();
+        } else {
+            var BootstrapDialog2 = new BootstrapDialog({
+                title: "提示",
+                message: data.Message,
+                buttons: [{
+                    icon: "glyphicon glyphicon-remove",
+                    label: "关闭",
+                    cssClass: "btn-danger",
+                    action: function (dialogItself) {
+                        dialogItself.close();
+                    }
+                }]
+            });
+            BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+            BootstrapDialog2.open();
+        }
+    }
+    function OnFailure() {
+        var BootstrapDialog0 = new BootstrapDialog({
+            title: "提示",
+            message: "Connection error",
+            buttons: [{
+                icon: "glyphicon glyphicon-remove",
+                label: "关闭",
+                cssClass: "btn-danger",
+                action: function (dialogItself) {
+                    dialogItself.close();
+                }
+            }]
+        });
+        BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+        BootstrapDialog0.open();
+    }
+    
+    
+    $(document).ready(function(){
+		var bd_status=$("#bd_status").val();
+		console.log(bd_status);
+		//徽章
+		if(bd_status==1||bd_status==2){
+			$(".badgeimg").attr("src","/images/badge-policyerr.png");
+			$(".badgebox").show();
+		}else if(bd_status>=7&&bd_status<=19){
+			if(bd_status==14){
+				$(".badgeimg").attr("src","/images/badge-backpolicy.png");
+				$(".badgebox").show();
+			}else if(bd_status==19){
+				$(".badgeimg").attr("src","/images/badge-changedpolicy.png");
+				$(".badgebox").show();
+			}else{
+				$(".badgeimg").attr("src","/images/badge-policy.png");
+				$(".badgebox").show();
+			}
+		}else if(bd_status==20){
+			$(".badgeimg").attr("src","/images/forbid.png");
+			$(".badgebox").show();
+		}else{
+			$(".badgebox").hide();
+		}
+	});
+</script>
+<div class="wrapper">
+    <div class="register-content">
+		<div class="poladd poldetail">
+			<div class="badgebox"><img class="badgeimg" src="/images/badge-policy.png"/></div>
+			<ul id="myTab" class="nav nav-pills policymain">
+				<li class="active">
+					<a href="#baseinfo" data-toggle="tab">基础信息</a>
+				</li>
+				<li class="backinfo">
+					<a href="#backinfo" data-toggle="tab">退保信息</a>
+				</li>
+				<li class="changeinfo">
+					<a href="#changeinfo" data-toggle="tab">变更信息</a>
+				</li>
+			</ul>
+			<div id="myTabContent" class="tab-content">
+				<div class="tab-pane fade in active" id="baseinfo">
+					<div class="table text-right">
+					    <div class="row">
+					        <div class="col-xs-2 ">商户名称：</div>
+					        <div class="col-xs-3 col-lg-2 text-left">
+					            @Html.DisplayFor(m => m.CorporateName)
+					            @Html.Hidden("bd_status",(int)Model.Status)               <!--(int)取数值-->
+					        </div>
+					        <div class="col-xs-2">被保险人：</div>
+					        <div class="col-xs-3 col-lg-3 text-left">
+					            @Html.DisplayFor(m => m.Contacts )
+					        </div>
+					    </div>
+					    <div class="row">
+					        <div class="col-xs-2">用户类型：</div>
+					        <div class="col-xs-3 col-lg-2 text-left">
+					            @Html.DisplayFor(a => a.UserType)
+					        </div>
+					        <div class="col-xs-2">证件类型：</div>
+					        <div class="col-xs-3 col-lg-2 text-left">
+					            @Html.DisplayFor(a => a.IDCardType)
+					        </div>
+					    </div>
+					    <div class="row">
+					        <div class="col-xs-2">证件号码：</div>
+					        <div class="col-xs-3 col-lg-2 text-left">
+					            @Html.DisplayFor(m => m.IDCardNum)
+					        </div>
+					        <div class="col-xs-2">手机号码：</div>
+					        <div class="col-xs-3 col-lg-3 text-left">
+					            @Html.DisplayFor(m => m.Phone)
+					        </div>
+					    </div>
+					    <div class="row">
+					        <div class="col-xs-2">承保内容：</div>
+					        <div class="col-xs-9 text-left">
+					            @Html.DisplayFor(m => m.PolicyContent)
+					        </div>
+					    </div>
+					    <div class="row">
+					        <div class="col-xs-2 col-lg-2">投保地址：
+					        </div>
+					        <div class="outer col-xs-5 col-lg-5 text-left">
+					            @Html.DisplayFor(a => a.Province)
+					
+					            @Html.DisplayFor(a => a.City)
+					
+					            @Html.DisplayFor(a => a.Town)
+					            
+					            @Html.DisplayFor(m => m.Address)
+					            
+					        </div>
+					    </div>
+					    <div class="row">
+					        <div class="col-xs-2 col-lg-2">保险公司：</div>
+					        <div class="col-xs-9 col-lg-2 text-left">
+					            @Html.DisplayFor(a => a.BxCorporateName)
+					        </div>
+					        <div class="col-xs-2">保险行业：</div>
+					        <div class="col-xs-9 col-lg-2 text-left">
+					            @Html.DisplayFor(a => a.BxIndustry)
+					        </div> 
+					        <div class="col-xs-2">保险类型：</div>
+					        <div class="col-xs-9 col-lg-2 text-left">
+					            @Html.DisplayFor(a => a.BxType)
+					        </div>
+					    </div>
+					    <div class="row">
+					        <div class="col-xs-2 col-lg-2">承保期限：</div>
+					        <div class="col-xs-9 col-lg-2 text-left">
+					            @Html.DisplayFor(a => a.PolicyDeadline)
+					        </div>
+					        <div class="col-xs-2 col-lg-2">保&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;额：</div>
+					        <div class="col-xs-9 col-lg-2 text-left">
+					            @Html.DisplayFor(a=>a.BxAmount)
+					        </div>
+					    </div>
+					    <div class="row">
+					        <div class="col-xs-2">费&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;率：</div>
+					        <div class="col-xs-2 text-left">
+					            @Html.DisplayFor(a => a.BxPubRate)
+					        </div>
+					        <div class="col-xs-2">付款金额：</div>
+					        <div class="col-xs-5 col-lg-2 text-left">
+					            @Html.DisplayFor(a => a.PayAmount)
+					        </div>
+					        <div class="col-xs-2">纸质保单：</div>
+					        <div class="col-xs-5 col-lg-2 text-left">
+					            @Html.DisplayFor(a=>a.PaperPolicy)
+					        </div>
+					    </div>
+					    <div class="row">
+					        <div class="col-xs-2">备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：</div>
+					        <div class="col-xs-9">
+					            @Html.TextAreaFor(m => m.PolRemark,new{id="remarkbox",readOnly="true"})
+					        </div>
+					    </div>
+					    @if (ViewBag.PolicyFileList != null)
+					    {
+					    <div class="row">
+					        <div class="col-xs-12">
+					            <div class="img-box full" style="">
+					                <section class=" img-section">
+					                    <div class="z_photo upimg-div clear">
+					                        <!-- 图片渲染部分 -->
+					                        @foreach (PolicyFile item in ViewBag.PolicyFileList as List<PolicyFile>)
+					                        { <section class="up-section fl">
+					                            <img class="up-img" src="@item.FilePathName.Substring(1)">
+					                        </section>}
+					                        <!-- //////////////////// -->
+					                    </div>
+					                </section>
+					            </div>
+					        </div>
+					    </div>
+					    }
+					</div>
+					<p class="redcolor">
+						<a class="BxClauses" name="BxClauses" px="@Model.ProductId">查看保单条款内容</a> 
+					</p>
+					<div class="maskBox" style="display: none;"></div>
+				</div>
+				
+				<div class="tab-pane fade" id="backinfo">
+					@if (@Model.Status == PolicyStatus.PolicyWaitBack || @Model.Status == PolicyStatus.BPolicyWaitBack || @Model.Status == PolicyStatus.APolicyBackErr || @Model.Status == PolicyStatus.BPolicyBackErr || @Model.Status == PolicyStatus.PolicyBack)
+                	{ 
+					<ul>
+						<li class="infotop">
+							<div>退保时间</div>
+							<div>退保原因</div>
+							
+						</li>
+                        @foreach (PolicyBackReason item in ViewBag.PolicyBackReasonList as List<PolicyBackReason>) { 
+						<li class="infocontent">
+							<div>@item.CreateTime</div>
+							<div>@item.BackReason</div>
+							
+						</li>
+                        }
+					</ul>
+                         if (null != ViewBag.PolicyBackAnnexList)
+                                        {
+					<div class="picBox">
+						<div class="img-box full" style="">
+							<section class=" img-section">
+								<div class="z_photo upimg-div clear">
+									<!-- 图片渲染部分 -->
+                                       
+
+                                            @foreach (PolicyBackAnnex item in ViewBag.PolicyBackAnnexList as List<PolicyBackAnnex>)
+                                            {
+                                                <section class="up-section fl">
+                                                    <a class="up-img_a" href="@item.FilePathName.Substring(1)" target="view_window">
+                                                        <img class="up-img" src="@item.FilePathName.Substring(1)">
+                                                    </a>
+                                                </section>
+                                            }
+                                       
+									<!-- //////////////////// -->
+								</div>
+							</section>
+						</div>
+					</div>
+                                        }
+                    }
+				</div>
+                
+				<div class="tab-pane fade" id="changeinfo">
+                	@*@if (@Model.Status == PolicyStatus.PolicyWaitChange || @Model.Status == PolicyStatus.BPolicyWaitChange || @Model.Status == PolicyStatus.APolicyChangedErr || @Model.Status == PolicyStatus.BPolicyChangedErr || @Model.Status == PolicyStatus.PolicyChanged)
+                	{*@ 
+                        <ul>
+                            <li class="infotop changeinfotop">
+                                @if (@Model.Status == PolicyStatus.PolicyWaitChange || @Model.Status == PolicyStatus.BPolicyWaitChange || @Model.Status == PolicyStatus.APolicyChangedErr || @Model.Status == PolicyStatus.BPolicyChangedErr || @Model.Status == PolicyStatus.PolicyChanged)
+                                {  <div>变更时间</div>
+                                    <div>变更原因</div>
+                                }
+                                @if (null != ViewBag.PolicyChangedAnnexList)
+                                { 
+                                <div>变更内容</div>
+                                }
+
+                            </li>
+                            @foreach (PolicyChangeReason item in ViewBag.PolicyChangeReasonList as List<PolicyChangeReason>)
+                            {
+                                <li class="infocontent">
+                                    <div>@item.CreateTime</div>
+                                    <div>@item.ChangeReason</div>
+                                    <div>@item.ChangeText</div>
+
+                                </li>
+                            }
+                        </ul>
+                         @if (null != ViewBag.PolicyChangedAnnexList)
+                                        {
+						<div class="picBox">
+							<div class="img-box full" style="">
+								<section class=" img-section">
+									<div class="z_photo upimg-div clear">
+										<!-- 图片渲染部分 -->
+                                       
+                                            @foreach (PolicyChangedAnnex item in ViewBag.PolicyChangedAnnexList as List<PolicyChangedAnnex>)
+                                            {
+                                                <section class="up-section fl">
+                                                    <a class="up-img_a" href="@item.FilePathName.Substring(1)" target="view_window">
+                                                        <img class="up-img" src="@item.FilePathName.Substring(1)">
+                                                    </a>
+                                                </section>
+                                            }
+                                        
+										<!-- //////////////////// -->
+									</div>
+								</section>
+							</div>
+						</div>
+                    }
+                    @*}*@
+                </div>
+			</div>
+			<div class="clearfix"></div>
+			<div class="reasonbox">
+				<div class="titlepanelbg"><div class="titlepanel">失败原因<span class="glyphicon glyphicon-menu-down"></span></div></div>
+				<div class="reasoncontent">
+					<ul id="myTab" class="nav nav-tabs">
+                        @if (ViewBag.APolicyErrReasonList!=null)
+                        {
+                            <li class="active">
+								<a href="#policy-sumit" data-toggle="tab">投保</a>
+							</li>
+                        }
+						
+                        @if (ViewBag.APolicyBackErrList != null)
+                        {
+                            <li>
+                                <a href="#policy-back" data-toggle="tab">退保</a>
+                            </li>
+                        }
+                        
+                        @if (ViewBag.APolicyChangedErrList != null)
+                        {
+                            <li>
+                                <a href="#policy-change" data-toggle="tab">变更</a>
+                            </li>
+                        }
+					</ul>
+					<div id="myTabContent" class="tab-content">
+                        @if (ViewBag.APolicyErrReasonList != null)
+                        {
+                            <div class="tab-pane fade in active" id="policy-sumit">
+                                <ul class="bxReason">
+                                    <li class="top">
+                                        <div class="time">时间</div>
+                                        <div class="reason">原因</div>
+                                        <!--<div class="creater">执行者</div>-->
+                                    </li>
+                                    @foreach (UnPolicyReason item in ViewBag.APolicyErrReasonList as List<UnPolicyReason>)
+                                    {
+                                   
+                                    <li class="reasondata">
+                                        <div class="time">
+                                            @item.CreateTime
+                                        </div>
+                                        <div class="reason">
+                                            @item.APolicyErrReason
+                                        </div>
+                                        <!--<div class="creater">
+                                            @item.Creater
+                                        </div>-->
+                                    </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                        
+                        @if (ViewBag.APolicyBackErrList != null)
+                        {
+                            <div class="tab-pane fade" id="policy-back">
+                                <ul class="bxReason">
+                                    <li class="top">
+                                        <div class="time">时间</div>
+                                        <div class="reason">原因</div>
+                                        <!--<div class="creater">执行者</div>-->
+                                    </li>
+                                    @foreach (UnPolicyReason item in ViewBag.APolicyBackErrList as List<UnPolicyReason>)
+                                    {
+                                        <li class="reasondata">
+                                            <div class="time">
+                                                @item.Creater
+                                            </div>
+                                            <div class="reason">
+                                                @item.APolicyErrReason
+                                            </div>
+                                            <!--<div class="creater">
+                                                @item.Creater
+                                            </div>-->
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                        
+						@if (ViewBag.APolicyChangedErrList != null)
+                        {
+							<div class="tab-pane fade" id="policy-change">
+								<ul class="bxReason">
+									<li class="top">
+										<div class="time">时间</div>
+										<div class="reason">原因</div>
+										<!--<div class="creater">执行者</div>-->
+									</li>
+
+                                    @foreach (UnPolicyReason item in ViewBag.APolicyChangedErrList as List<UnPolicyReason>) { 
+                                        <li class="reasondata">
+											<div class="time">
+												@item.CreateTime
+											</div>
+											<div class="reason">
+												@item.APolicyErrReason
+											</div>
+											<!--<div class="creater">
+												@item.Creater
+											</div>-->
+										</li>
+                                    }
+								</ul>
+							</div>
+						}
+					</div><!--myTabContent结束-->
+				</div><!--reasoncontent结束-->
+			</div><!--reasonbox结束-->
+	    </div><!--poladd结束-->        
+    </div>
+</div>
+
+<script type="text/javascript" src="~/js/city/area.js"></script>
+<script type="text/javascript" src="~/js/city/select.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		if($("#backinfo ul li").hasClass("infocontent")){
+			$("#myTab .backinfo").css("display","block");
+		}else{
+			$("#myTab .backinfo").css("display","none");
+		}
+		if($("#changeinfo ul li").hasClass("infocontent")){
+			$("#myTab .changeinfo").css("display","block");
+		}else{
+			$("#myTab .changeinfo").css("display","none");
+		}
+		if($("#myTabContent ul li").hasClass("reasondata")){
+			$(".reasonbox").css("display","block");
+		}else{
+			$(".reasonbox").css("display","none");
+		}
+	});
+	
+	$(function(){ 
+		for(var i=0;i<$('.up-img').length;i++){
+			var imgUrl = $('.up-img').eq(i).attr('src');
+			var file_Type = imgUrl.substr(imgUrl.indexOf("."));
+			//pdf文件 
+			if(file_Type=='.pdf' || file_Type=='.PDF'){
+				$('.up-img').eq(i).attr('src','../../images/pdflogo.jpg');
+			}
+		};
+		$(".reasonbox .titlepanel").on("click",function(){
+			if($(this).find("span").hasClass("glyphicon-menu-down")){
+				$(this).find("span").removeClass("glyphicon-menu-down");
+				$(this).find("span").addClass("glyphicon-menu-up");
+			}else{
+				$(this).find("span").removeClass("glyphicon-menu-up");
+				$(this).find("span").addClass("glyphicon-menu-down");
+			}
+			$(".reasoncontent").slideToggle("slow");
+		});
+		
+		$(".up-img").on("click",function(){
+			var img_src = $(this).attr('src');
+			$(".maskBox").css("height",$(".modal-dialog").height());
+			$(".maskBox").show().append('<img src="'+img_src+'">');
+			$(".maskBox img").show();
+		});
+		$(".maskBox").on("click",function(){
+			$(this).html("").hide();
+		});
+		// 保险条款
+		$(".BxClauses").on("click",function(){
+			var BxClauses = $(this).attr("px");
+			var clausesDialog = new BootstrapDialog({
+				title: "保险条款",
+				message: function(dialog) {
+					var $message = $('<div></div>');
+					var pageToLoad = dialog.getData('pageToLoad');
+					$message.load(pageToLoad);
+					return $message;
+				},
+				data: {
+					'pageToLoad': '@Url.Action("GetBxClauses")/'+BxClauses
+				},
+				buttons: [{
+					icon: "glyphicon glyphicon-plus",
+					label: "返回",
+					action: function(dialogItself) {
+						dialogItself.close();
+					}
+				}]
+			});
+			clausesDialog.open();
+		});
+	});
+</script>
+
+
+
+
+

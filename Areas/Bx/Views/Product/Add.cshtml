@@ -1,0 +1,284 @@
+﻿@model Bx_Core.Product
+   
+@{
+    ViewBag.Title = "新增产品";
+    Layout = null;
+}
+<style type="text/css">
+	.modal-dialog{
+		width: 1000px;
+	}
+</style>
+	<script type="text/javascript">		
+		function OnSuccess(data) {
+			if(data.Status) {
+				var BootstrapDialog1=new BootstrapDialog({
+					title:"提示",
+					message: data.Message,
+					buttons: [{
+						icon: "glyphicon glyphicon-remove",
+						label: "关闭",
+						action: function(dialogItself) {
+							dialogItself.close();
+							window.location.href = data.Url;
+						}
+					}]
+				});
+				BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+				BootstrapDialog1.open();					
+			} else {
+				var BootstrapDialog2=new BootstrapDialog({
+					title:"提示",
+					message: data.Message,
+					buttons: [{
+						icon: "glyphicon glyphicon-remove",
+						label: "关闭",
+						cssClass:"btn-danger",
+						action: function(dialogItself) {
+							dialogItself.close();
+						}
+					}]
+				});
+				BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+				BootstrapDialog2.open();					
+			}
+		}
+		function OnFailure() {
+			var BootstrapDialog0=new BootstrapDialog({
+				title:"提示",
+				message: "Connection error",
+				buttons: [{
+						icon: "glyphicon glyphicon-remove",
+						label: "关闭",
+						cssClass:"btn-danger",
+						action: function(dialogItself) {
+							dialogItself.close();
+						}
+					}]
+			});
+			BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+			BootstrapDialog0.open();
+		}
+    </script>
+	<div class="wrapper">
+			<div class="register-content">
+				@using (Ajax.BeginForm("Add", "Product", new AjaxOptions { Url = Url.Action("add", "Product", new { area = "BX" }), OnSuccess = "OnSuccess", OnFailure = "OnFailure" }, new { id="ProductAdd"})){
+					<div class="table">
+						<div class="term">
+							<!-- TODO:-->
+							<!-- <div class="title">创建时间</div>
+							<div class="inputBox">
+								<input type="text" class="l_input" id="createTime" name="createTime" disabled="disabled" />
+							</div> -->
+							<div class="title">保险公司</div>
+							<div class="inputBox">
+                                @Html.TextBox("bxCorporateName",null, new { name="BxCreateCorporateName", disabled="disabled"  })
+							</div>
+						</div>
+						<div class="term selectpicker_term">
+							<div class="title">保险行业</div>
+							<div class="inputBox">
+								<select id="BxIndustry" class="selectpicker" data-live-search="true" name="BxIndustry"></select>
+                                @Html.ValidationMessageFor(a=>a.BxIndustry)
+								<span class="glyphicon glyphicon-cog bxindustryset"></span>
+							</div>
+							<div class="title">保险类型</div>
+							<div class="inputBox_r">
+								<select id="bxtypesel" class="selectpicker" data-live-search="true" name="BxType"></select>
+                                @Html.ValidationMessageFor(a=>a.BxType)
+								<span class="glyphicon glyphicon-cog bxtypeset"></span>
+							</div>
+						</div>
+						<div class="term">
+							<!-- TODO欣 -->
+							<div class="l_insuredAmount_box insuredAmount_no">
+								<div class="title">保额</div>
+								<div class="inputBox">
+									<input class="BxAmountFrom" data-val="true" data-val-number="字段 保额从 必须是一个数字。" data-val-regex="保额从必须为正整数" data-val-regex-pattern="^[1-9]\d*$" data-val-required="保额从还未添哦" id="[0].BxAmountFrom" name="[0].BxAmountFrom" type="text" value="" />
+									<span class="field-validation-valid" data-valmsg-for="[0].BxAmountFrom" data-valmsg-replace="true"></span>
+										万到 
+									<input class="BxAmountTo" data-val="true" data-val-number="字段 保额到 必须是一个数字。" data-val-regex="保额到必须为正整数" data-val-regex-pattern="^[1-9]\d*$" data-val-required="保额到还未添哦" id="[0].BxAmountTo" name="[0].BxAmountTo" type="text" value="" />万
+									<span class="field-validation-valid" data-valmsg-for="[0].BxAmountTo" data-valmsg-replace="true"></span>
+								</div>
+								<div class="title">费率</div>
+								<div class="inputBox_r">
+									<input class="BxPriRate" data-val="true" data-val-number="字段 费率 必须是一个数字。" data-val-regex="费率必须为1-4位小数" data-val-regex-pattern="^[0-9]+(.[0-9]{1,4})?$" data-val-required="费率还未添哦" id="[0].BxPriRate" name="[0].BxPriRate" type="text" value="" />
+									<span class="field-validation-valid" data-valmsg-for="[0].BxPriRate" data-valmsg-replace="true"></span>
+									<span class="glyphicon glyphicon-plus plusBtn"></span>
+
+									<div class="title len">图片是否要上传</div>
+									<input class="NeedImg" type="checkbox" name="[0].NeedImg" value="true"><span>是</span>
+								</div>
+								<!-- <div class="title">图片是否要上传</div>
+								<div class="inputBox_r">
+										<input type="radio" name="yes" value="">是
+										<input type="radio" name="no" value="">否
+								</div> -->
+							</div>
+						</div>
+						<div class="term">
+							<div class="title">保险条款</div>
+							<!-- <textarea name="BxClauses" id="TextArea1" cols="20" rows="2" class="ckeditor"></textarea> -->
+							<textarea name="BxClauses" id="BxClauses" cols="20" rows="2" class="ckeditor"></textarea>
+                            @Html.ValidationMessageFor(a=>a.BxClauses)
+							<script>
+								CKEDITOR.replace( 'BxClauses');
+							</script>
+						</div>
+						<div class="term">
+							<div class="title">备注</div>
+							<textarea class="l_textarea" rows="3" name="BxRemark"></textarea> 
+                            @Html.ValidationMessageFor(a=>a.BxRemark)
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+    
+	<script type="text/javascript">		
+	//保险行业
+	$(function() {
+			$("#BxIndustry").selectpicker({  
+				noneSelectedText : '请选择' //默认显示内容  
+			}); 
+			
+			$(window).on('load', function() {  //初始化刷新数据 
+				$('#BxIndustry').selectpicker('val', '');  
+				$('#BxIndustry').selectpicker('refresh');  
+			}); 
+			
+			//下拉数据加载
+			$.ajax({  
+				type : 'get',  
+				url : "/bx/bxIndustry/getSelect",  
+				dataType : 'json',  
+				success : function(data) {//返回list数据并循环获取
+					var select = $("#BxIndustry");  
+					for (var i = 0; i < data.Data.length; i++) {  
+						select.append("<option value='"+data.Data[i].text+"'>"  
+						+ data.Data[i].text + "</option>");  
+					}  
+					$('#BxIndustry').selectpicker('val', '');  
+					$('#BxIndustry').selectpicker('refresh');  
+				}  
+			});  
+			$(".bxindustryset").click(function(){
+				var addDialog = new BootstrapDialog({
+					title: "保险行业列表",
+					message: function(dialog) {
+
+						var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+						var pageToLoad = dialog.getData('pageToLoad');
+						$message.load(pageToLoad);
+
+						return $message;
+					},
+					data: {
+						'pageToLoad': '@Url.Action("list", "bxIndustry", new {area="bx" })'
+					},
+					buttons: [{
+						icon: "glyphicon glyphicon-remove",
+						label: "关闭",
+						action: function(dialogItself) {
+							////////////////////////////////////////////////////////
+							//TODO欣:保险行业
+							$.ajax({  
+								type : 'get',  
+								url : "/bx/bxIndustry/getSelect",  
+								dataType : 'json',  
+								success : function(data) {//返回list数据并循环获取  
+									$("#BxIndustry").html("");
+									var select = $("#BxIndustry");  
+									for (var i = 0; i < data.Data.length; i++) {  
+										select.append("<option value='"+data.Data[i].text+"'>"  
+										+ data.Data[i].text + "</option>");  
+									}  
+									$('#BxIndustry').selectpicker('val', '');  
+									$('#BxIndustry').selectpicker('refresh');  
+								}  
+							});
+							////////////////////////////////////////////////////////
+							dialogItself.close();
+						}
+					}]
+				});
+				addDialog.open();
+			});
+
+	});
+	//保险类型
+	$(function() {
+		$("#bxtypesel").selectpicker({  
+			noneSelectedText : '请选择' //默认显示内容  
+		}); 
+		
+		$(window).on('load', function() {  //初始化刷新数据 
+			$('#bxtypesel').selectpicker('val', '');  
+			$('#bxtypesel').selectpicker('refresh');  
+		}); 
+	
+		//下拉数据加载  
+		$.ajax({  
+			type : 'get',  
+			url : "/bx/bxtype/getselect",  
+			dataType : 'json',  
+			success : function(data) {//返回list数据并循环获取  
+				var select = $("#bxtypesel");  
+				for (var i = 0; i < data.Data.length; i++) {  
+					select.append("<option value='"+data.Data[i].text+"'>"  
+							+ data.Data[i].text + "</option>");  
+				}  
+				$('#bxtypesel').selectpicker('val', '');  
+				$('#bxtypesel').selectpicker('refresh');  
+			}  
+		}); 
+	
+		$(".bxtypeset").click(function(){
+			var addDialog = new BootstrapDialog({
+				title: "保险类型列表",
+				message: function(dialog) {
+
+					var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+					var pageToLoad = dialog.getData('pageToLoad');
+					$message.load(pageToLoad);
+
+					return $message;
+				},
+				data: {
+					'pageToLoad': '@Url.Action("list", "bxType", new {area="bx" })'
+				},
+				buttons: [{
+					icon: "glyphicon glyphicon-remove",
+					label: "关闭",
+					action: function(dialogItself) {
+						////////////////////////////////////////////////////////
+						//TODO欣:保险类型
+						$.ajax({  
+							type : 'get',  
+							url : "/bx/bxtype/getselect",  
+							dataType : 'json',  
+							success : function(data) {//返回list数据并循环获取  
+								$("#bxtypesel").html("");
+								var select = $("#bxtypesel");  
+								for (var i = 0; i < data.Data.length; i++) {  
+									select.append("<option value='"+data.Data[i].text+"'>"  
+											+ data.Data[i].text + "</option>");  
+								}  
+								$('#bxtypesel').selectpicker('val', '');  
+								$('#bxtypesel').selectpicker('refresh');  
+							}  
+						}); 
+						////////////////////////////////////////////////////////
+						dialogItself.close();
+					}
+				}]
+			});
+			addDialog.open();
+		}); 
+
+	});
+	
+	
+</script>
+		

@@ -1,0 +1,102 @@
+﻿@model Bx_Core.PolicyEle
+@using Bx_Core
+
+@{
+    ViewBag.Title = "回单详情";
+    Layout = null;
+}
+
+<link type="text/css" rel="stylesheet" href="~/css/common.css" />
+<link type="text/css" rel="stylesheet" href="~/css/index.css" />
+<style type="text/css">
+    
+	.maskBox{
+		position: absolute;
+		z-index: 100;
+		top:-41px;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0,0,0,0.5);
+		display: none;
+	}
+	.maskBox img{
+		width: 80%;
+		margin: 80px auto;
+		display: none;
+	}
+	.title{
+		margin-bottom: 26px;
+		font-size: 18px;
+	}
+	.picBox{
+		margin-bottom: 40px;
+	}
+</style>
+
+<p class="title">保单回单：</p>
+<div class="picBox">
+    <div class="img-box full" style="">
+        <section class=" img-section">
+            <div class="z_photo upimg-div clear">
+                <!-- 图片渲染部分 -->
+                @if (null != ViewBag.PolicyEleList) { 
+                   foreach(PolicyEle item in ViewBag.PolicyEleList as List<PolicyEle>) { 
+                        
+                     <section class="up-section fl">
+						<a class="up-img_a" href="@item.FilePathName.Substring(1)" target="view_window">
+							<img class="up-img" src="@item.FilePathName.Substring(1)">
+						</a>
+                    </section>
+                   }
+                }
+                <!-- //////////////////// -->
+            </div>
+        </section>
+    </div>
+</div>
+@if (null != ViewBag.PolicyChangedAnnexByBx) { 
+    
+
+<p class="title">变更保单回单：</p>
+<div class="picBox">
+    <div class="img-box full" style="">
+        <section class=" img-section">
+            <div class="z_photo upimg-div clear">
+                <!-- 图片渲染部分 -->
+                @foreach (PolicyChangedAnnexByBx item in ViewBag.PolicyChangedAnnexByBx as List<PolicyChangedAnnexByBx>)
+                {
+                    
+               
+               <section class="up-section fl">
+					<a class="up-img_a" href="@item.FilePathName.Substring(1)" target="view_window">
+                        <img class="up-img" src="@item.FilePathName.Substring(1)">
+					</a>
+				</section>
+                }
+                <!-- //////////////////// -->
+            </div>
+        </section>
+    </div>
+</div>
+}
+<div class="maskBox" style="display: none;"></div>
+
+<script>
+    $(function(){
+		for(var i=0;i<$('.up-img').length;i++){
+			var imgUrl = $('.up-img').eq(i).attr('src');
+			var file_Type = imgUrl.substr(imgUrl.indexOf("."));
+			//pdf文件 
+			if(file_Type=='.pdf' || file_Type=='.PDF'){
+				$('.up-img').eq(i).attr('src','../../images/pdflogo.jpg');
+			}
+		};
+        
+    });
+</script>
+
+
+

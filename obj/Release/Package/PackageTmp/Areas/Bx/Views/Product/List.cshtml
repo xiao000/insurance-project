@@ -1,0 +1,535 @@
+﻿
+@{
+    ViewBag.Title = "产品管理";
+    Layout = "~/Areas/Bx/Views/Shared/_Bx.cshtml";
+}
+
+		<!--ins_fullcontent start-->
+		<div class="ins_rightmian ins_fullcontent" id="ins_rightmain">
+			<div class="ins_rightcontent">
+				<div class="content_timetoggle content_toptitle">
+					<div class="statushead">
+						<ul class="nav nav-pills">
+							<li class="list active">全部产品</li>
+						  	<li class="unpublic">未上架<span class="badge badge-danger">42</span></li>
+						  	<li class="publiced_err">上架未通过<span class="badge badge-danger">0</span></li>
+						  	<li class="waitpublic">上架等待审核<span class="badge badge-danger">0</span></li>
+						  	<li class="publiced">已上架<span class="badge badge-danger">3</span></li>
+						  	<li class="forbid">已禁用<span class="badge badge-danger">0</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="content_main">
+					<!--<div class="tabtop"><a class="commonbtn bigbtn fl" href="/Admin/customer/ExportToExcel?Length=8">导出 EXCSL</a></div>-->
+					<div id="toolbar" class="btn-group">
+			            			<button id="product_add" type="button" class="commonbtn smallbtn" style="margin-right: 15px;">
+			                			新增
+			            			</button>
+			        		</div>
+			        		<table id="bx_product">
+					</table>
+				</div>
+			</div>
+		</div>
+		<!--ins_fullcontent end-->
+
+		<script type="text/javascript">
+			//主要内容高度
+	    		$head=$("#ins_header").height()+30;
+			$rightmain=$(window).height()-$head-30;
+	  		$("#ins_rightmain").css("min-height",$rightmain+"px");
+	  		$tablebox=$(".content_timetoggle").height();
+			$btable=$rightmain-$tablebox;
+	  		$(".bootstrap-table").css("min-height",$btable+"px");
+	  		
+	  		$(window).resize(function(){
+				//主要内容高度
+				$head=$("#ins_header").height()+30;
+				$rightmain=$(window).height()-$head-30;
+				$("#ins_rightmain").css("min-height",$rightmain+"px");
+				$tablebox=$(".content_timetoggle").height();
+				$btable=$rightmain-$tablebox;
+				$(".bootstrap-table").css("min-height",$btable+"px");
+			});
+
+			$(function() {
+				function statusheadAjax(){
+					$.ajax({
+						url: "/Bx/Product/Count",
+						type: "POST",
+						data:'',
+						dataType: "json",
+						success: function(data){
+							console.log(data);
+							$(".unpublic").find("span").text(data.Data.UnPublic);  
+							$(".publiced_err").find("span").text(data.Data.PubErr);  
+							$(".waitpublic").find("span").text(data.Data.WaitPub);  
+							$(".publiced").find("span").text(data.Data.Publiced);  
+							$(".forbid").find("span").text(data.Data.ForbidPub);  
+						}
+					});
+				};
+				statusheadAjax();
+				
+				$('#bx_product').bootstrapTable({
+					url: '/bx/product/list',
+					data_id:'0',
+					method: 'post', //请求方式（*）
+					toolbar: '#toolbar', //工具按钮用哪个容器
+					striped: true, //是否显示行间隔色
+					cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+					pagination: true, //是否显示分页（*）
+					sortable: false, //是否启用排序
+					sortOrder: "desc", //排序方式
+					//queryParams:queryParams,//传递参数（*）
+					sidePagination: "server", //分页方式：client客户端分页，server服务端分页（*）
+					pageNumber: 1, //初始化加载第一页，默认第一页
+					pageSize: 10, //每页的记录行数（*）
+					queryParamsType: "limit",
+					sortable: true, //是否启用排序 
+					//sortOrder: "ID asc",
+					/*pageList: [1,2,3], */ //可供选择的每页的行数（*）
+					search: true, //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+					locale: "zh-CN",
+					strictSearch: true,
+					showColumns: true, //是否显示所有的列
+					//showRefresh: true,                  //是否显示刷新按钮
+					minimumCountColumns: 2, //最少允许的列数
+					clickToSelect: true, //是否启用点击选中行
+					uniqueId: "ProductId", //每一行的唯一标识，一般为主键列
+					showToggle: false, //是否显示详细视图和列表视图的切换按钮
+					cardView: false, //是否显示详细视图
+					detailView: true, //是否显示父子表
+					//height: $th, //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+					showExport: true,
+					idField: "id",
+					exportTypes: ['excel'],
+					clickToSelect: true,
+					contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+					searchAlign: "left",
+					buttonsAlign: "right",
+					toolbarAlign: "right",
+					columns: [
+						{
+							field: "ProductId",
+							title: "序号",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function (value, row, index) {
+							    var pageSize=$('#bx_product').bootstrapTable('getOptions').pageSize;//通过表的#id 可以得到每页多少条
+                			    			    var pageNumber=$('#bx_product').bootstrapTable('getOptions').pageNumber;//通过表的#id 可以得到当前第几页
+                			    			    return pageSize * (pageNumber - 1) + index + 1;    //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
+							}
+						},
+						{
+							field: "BxProductNumber",
+							title: "合同编号",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+						
+						},
+						{
+							field: "BxCreateCorporateName",
+							title: "保险公司",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+						
+						},
+						{
+							field: "BxIndustry",
+							title: "保险行业",
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						{
+							field: "BxType",
+							title: "保险类型",
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						{
+							field: "CreateTime",
+							title: "创建时间",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function(value){
+								var str=value.replace("/Date(","");
+								var txt=str.replace(")/","");
+								return new Date(parseInt(txt)).toLocaleString(); 
+							}
+						},
+						
+						{
+							field: "Status",
+							title: "状态",
+							align: "center",
+							valign: "middle",
+							formatter: function(value) {
+								if(value=='0'){
+									return "未上架";
+								} else if(value=='1'){
+									return "上架未通过";
+								} else if(value=='5'){
+									return "上架等待审核";
+								} else if(value=='6'){
+									return "已上架";
+								} else if(value=='7'){
+									return "已禁用";
+								}
+							}
+						},
+						{
+							field: "ProductId",
+							title: "操作",
+							align: "center",
+							valign: "middle",
+							
+							formatter: function(value,data) {
+								console.log(value);
+								console.log(data);
+								if(data.Status=='0'){
+									return "<button class='glyphicon glyphicon-edit opeicon' data-operation='editusers' data-value='" + value + "' title='修改'></button><button class='glyphicon glyphicon-trash opeicon' data-operation='deleteusers' data-value='" + value + "' title='删除'></button><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button><button class='glyphicon glyphicon-open opeicon' data-operation='grounding' data-value='" + value + "' title='上架'></button>"
+								
+								} else if(data.Status=='1'){
+									return "<button class='glyphicon glyphicon-edit opeicon' data-operation='editusers' data-value='" + value + "' title='修改'></button><button class='glyphicon glyphicon-trash opeicon' data-operation='deleteusers' data-value='" + value + "' title='删除'><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button><button class='glyphicon glyphicon-open opeicon' data-operation='grounding' data-value='" + value + "' title='上架'></button>"
+								
+								} else if(data.Status=='5'){
+									return "<button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+								
+								} else if(data.Status=='6'){
+									return "<button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+								
+								} else if(data.Status=='7'){
+									return "<button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+								
+								}
+							}
+						}
+					],
+
+					onPageChange: function(size, number) {
+					},
+					formatNoMatches: function() {
+						return '暂无数据';
+					},
+
+					onLoadSuccess: function() {
+						//修改按钮	
+						$("button[data-operation='editusers']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "修改",
+								closable: false,
+								message: function(dialog) {
+									
+									var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("edit", "product", new {area="bx" })' + '/' + id
+								},
+								buttons: [{
+									icon: "glyphicon glyphicon-ok",
+									label: "保存",
+									action: function(dialogItself) {
+										
+										$('textarea[ name="BxClauses"]').val(CKEDITOR.instances.BxClauses.getData());
+										for(var i=0; i<$(".term .insuredAmount_no").length; i++){ 
+											console.log('i='+i);
+											$(".term .insuredAmount_no").eq(i).find(".BxAmountFrom").attr('name','['+i+'].BxAmountFrom').attr('id','['+i+'].BxAmountFrom');
+											//console.log($(".term .insuredAmount_no").eq(i).find(".BxAmountFrom").val());
+											$(".term .insuredAmount_no").eq(i).find(".BxAmountFrom").siblings('.field-validation-valid').attr('data-valmsg-for','['+i+'].BxAmountFrom');
+											$(".term .insuredAmount_no").eq(i).find(".BxAmountTo").attr('name','['+i+'].BxAmountTo').attr('id','['+i+'].BxAmountTo');
+											//console.log($(".term .insuredAmount_no").eq(i).find(".BxAmountTo").val());
+											$(".term .insuredAmount_no").eq(i).find(".BxAmountTo").siblings('.field-validation-valid').attr('data-valmsg-for','['+i+'].BxAmountFrom');
+											$(".term .insuredAmount_no").eq(i).find(".BxPriRate").attr('name','['+i+'].BxPriRate').attr('id','['+i+'].BxPriRate');
+											//console.log($(".term .insuredAmount_no").eq(i).find(".BxPriRate").val());
+											$(".term .insuredAmount_no").eq(i).find(".BxPriRate").siblings('.field-validation-valid').attr('data-valmsg-for','['+i+'].BxPriRate');
+											$(".term .insuredAmount_no").eq(i).find(".NeedImg").attr('name','['+i+'].NeedImg');
+										} 
+										$.post($("#ProductEdit").attr("action"), $("#ProductEdit").serializeArray(), function(data) {
+											if(data.Status == 1) {
+												BootstrapDialog.show({
+													message: data.Message,
+													buttons: [{
+														icon: "glyphicon glyphicon-ok",
+														label: "确定",
+														action: function(dialogItself) {
+															$('#bx_product').bootstrapTable("refresh");
+															statusheadAjax();
+															dialogItself.close();
+															addDialog.close();
+														}
+													}]
+
+												});
+											} else BootstrapDialog.alert(data.Message);
+										}, "json");
+										$("form").validate();
+									}
+								}, {
+									icon: "glyphicon glyphicon-remove",
+									label: "关闭",
+									action: function(dialogItself) {
+
+										dialogItself.close();
+									}
+								}]
+							});
+							addDialog.open();
+						});
+						//删除按钮
+						$("button[data-operation='deleteusers']").click(function() {
+							var id = $(this).attr("data-value");
+							BootstrapDialog.confirm("你确定要删除" + $(this).parent().parent().find("td").eq(2).text() + "吗？", function(result) {
+								if(result) {
+								    $.post("@Url.Action("delete", "product", new {area="bx"})", {id: id}, function(data) {
+										if(data.Status == 1) {
+											BootstrapDialog.show({
+												message: "删除成功",
+												buttons: [{
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogItself) {
+														$('#bx_product').bootstrapTable("refresh");
+														statusheadAjax();
+														dialogItself.close();
+													}
+												}]
+											});
+										}
+									});
+								}
+							});
+						});
+						//禁用按钮
+						$("button[data-operation='forbidusers']").click(function() {
+							var id = $(this).attr("data-value");
+							BootstrapDialog.confirm("你确定要启用/禁用" + $(this).parent().parent().find("td").eq(2).text() + "吗？", function(result) {
+								if(result) {
+								    $.post("@Url.Action("forbid", "product", new {area="bx"})", {id: id}, function(data) {
+										if(data.Status == 1) {
+											BootstrapDialog.show({
+												message: "启用/禁成功",
+												buttons: [{
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogItself) {
+														$('#bx_product').bootstrapTable("refresh");
+														statusheadAjax();
+														dialogItself.close();
+													}
+												}]
+											});
+										}
+									});
+								}
+							});
+						});
+						//详情按钮	
+						$("button[data-operation='detailusers']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "详情",
+								message: function(dialog) {
+
+									var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("Detail", "Product", new {area="Bx" })' + '/' + id
+								},
+								buttons: [{
+									icon: "glyphicon glyphicon-remove",
+									label: "关闭",
+									action: function(dialogItself) {
+										statusheadAjax();
+										dialogItself.close();
+									}
+								}]
+							});
+							addDialog.open();
+						});
+						//上架按钮	
+						$("button[data-operation='grounding']").click(function() {
+							var id = $(this).attr("data-value");
+							BootstrapDialog.confirm("你确定要申请上架" + $(this).parent().parent().find("td").eq(2).text() + "吗？", function(result) {
+								if(result) {
+								    $.post("@Url.Action("Waitpub", "product", new {area="bx"})", {id: id}, function(data) {
+											
+										if(data.Status == 1) {
+											BootstrapDialog.show({
+												message: data.Message,
+												buttons: [{
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogItself) {
+														$('#bx_product').bootstrapTable("refresh");
+														statusheadAjax();
+														dialogItself.close();
+													}
+												}]
+											});
+										}
+										if(data.Status == 0){
+											BootstrapDialog.show({
+												message: data.Message,
+												buttons: [{
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogItself) {
+														console.log(data.Status);
+														$('#bx_product').bootstrapTable("refresh");
+														statusheadAjax();
+														dialogItself.close();
+													}
+												}]
+											});
+										}
+									});
+								}
+							});
+						});
+					}
+
+				});
+
+				$(window).resize(function() {
+					$('#bx_product').bootstrapTable('resetView');
+				});
+				
+				//添加按钮 
+				$("#product_add").click(function() {
+					var addDialog = new BootstrapDialog({
+						title: "新增产品",
+						closable: false,
+						message: function(dialog) { 
+							var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+							var pageToLoad = dialog.getData('pageToLoad');
+							$message.load(pageToLoad);
+							return $message;
+						},
+						data: {
+							'pageToLoad': '@Url.Action("add", "product", new {area="bx" })'
+						},
+						buttons: [{
+							icon: "glyphicon glyphicon-plus",
+							label: "添加",
+							action: function(dialogItself) {
+								$('textarea[ name="BxClauses"]').val(CKEDITOR.instances.BxClauses.getData());
+								for(var i=0; i<$(".term .insuredAmount_no").length; i++){ 
+									console.log('i='+i);
+									$(".term .insuredAmount_no").eq(i).find(".BxAmountFrom").attr('name','['+i+'].BxAmountFrom').attr('id','['+i+'].BxAmountFrom');
+									//console.log($(".term .insuredAmount_no").eq(i).find(".BxAmountFrom").val());
+									$(".term .insuredAmount_no").eq(i).find(".BxAmountFrom").siblings('.field-validation-valid').attr('data-valmsg-for','['+i+'].BxAmountFrom');
+									$(".term .insuredAmount_no").eq(i).find(".BxAmountTo").attr('name','['+i+'].BxAmountTo').attr('id','['+i+'].BxAmountTo');
+									//console.log($(".term .insuredAmount_no").eq(i).find(".BxAmountTo").val());
+									$(".term .insuredAmount_no").eq(i).find(".BxAmountTo").siblings('.field-validation-valid').attr('data-valmsg-for','['+i+'].BxAmountFrom');
+									$(".term .insuredAmount_no").eq(i).find(".BxPriRate").attr('name','['+i+'].BxPriRate').attr('id','['+i+'].BxPriRate');
+									//console.log($(".term .insuredAmount_no").eq(i).find(".BxPriRate").val());
+									$(".term .insuredAmount_no").eq(i).find(".BxPriRate").siblings('.field-validation-valid').attr('data-valmsg-for','['+i+'].BxPriRate');
+									$(".term .insuredAmount_no").eq(i).find(".NeedImg").attr('name','['+i+'].NeedImg');
+								} 
+								$.post($("#ProductAdd").attr("action"), $("#ProductAdd").serializeArray(), function(data) {
+									if(data.Status == 1) { 
+										BootstrapDialog.show({
+											message: data.Message,
+											buttons: [{
+												icon: "glyphicon glyphicon-ok",
+												label: "确定",
+												action: function(dialogItself) {
+													$('#bx_product').bootstrapTable("refresh");
+													statusheadAjax();
+													dialogItself.close();
+													addDialog.close();
+												}
+											}]
+
+										});
+									} else BootstrapDialog.alert(data.Message);
+								}, "json");
+								$("form").validate();
+							}
+						}, {
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+					});
+					addDialog.open();
+				});
+				//添加按钮结束
+
+			});
+			Date.prototype.toLocaleString = function() {
+				return this.getFullYear() + "-" + (this.getMonth() + 1) + "-" + this.getDate() + " " + this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds();
+    			};
+			function getIdSelections() {
+				return $.map($('#bx_product').bootstrapTable('getSelections'), function(row) {
+					return row.id
+				});
+			}
+			//得到查询的参数
+			queryParams = function(params) {
+				var temp = { //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+					//limit: params.limit,   //页面大小
+					limit: params.pageSize, //页面大小
+					offset: params.pageNumber, //页码
+				};
+				return temp;
+			};
+
+			function responseHandler(res) {
+				$.each(res.rows, function(i, row) {
+					row.state = $.inArray(row.id, selections) !== -1;
+				});
+				return res;
+			}
+
+			function detailFormatter(index, row) {
+				var html = [];
+				$.each(row, function(key, value) {
+					html.push('<p><b>' + key + ':</b> ' + value + '</p>');
+				});
+				return html.join('');
+			}
+			$(document).ready(function(){
+				$(".statushead ul li").on("click",function(){
+					$(this).addClass("active").siblings().removeClass("active");
+					if($(".statushead ul .active").hasClass("list")){
+						$('#bx_product').bootstrapTable('refresh',{url:'/Bx/Product/List'});
+					}
+					if($(".statushead ul .active").hasClass("unpublic")){
+						$('#bx_product').bootstrapTable('refresh',{url:'/Bx/Product/List_UnPub'});
+					}
+					if($(".statushead ul .active").hasClass("publiced_err")){
+						$('#bx_product').bootstrapTable('refresh',{url:'/Bx/Product/List_PubErr'});
+					}
+					if($(".statushead ul .active").hasClass("waitpublic")){
+						$('#bx_product').bootstrapTable('refresh',{url:'/Bx/Product/List_Waitpub'});
+					}
+					if($(".statushead ul .active").hasClass("publiced")){
+						$('#bx_product').bootstrapTable('refresh',{url:'/Bx/Product/List_Publiced'});
+					}
+					if($(".statushead ul .active").hasClass("forbid")){
+						$('#bx_product').bootstrapTable('refresh',{url:'/Bx/Product/List_Forbid'});
+					}
+				});
+			});
+			
+		</script>
+

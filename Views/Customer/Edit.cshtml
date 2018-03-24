@@ -1,0 +1,203 @@
+﻿@model Bx_Core.Customer
+
+@{
+    ViewBag.Title = "账号管理";
+    Layout = "~/Views/Shared/_customer.cshtml";
+}
+<script type="text/javascript">
+    
+			function OnSuccessfresh(data) {
+				if(data.Status) {
+					var BootstrapDialog1=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+								window.location.href = data.Url;
+							}
+						}]
+					});
+					BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+					BootstrapDialog1.open();
+				} else {
+					var BootstrapDialog2=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+					});
+					BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+					BootstrapDialog2.open();
+				}
+			}
+			
+			function OnSuccess(data) {
+				if(data.Status) {
+					var BootstrapDialog1=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+								window.location.href = data.Url;
+							}
+						}]
+					});
+					BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+					BootstrapDialog1.open();
+				} else {
+					var BootstrapDialog2=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+					});
+					BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+					BootstrapDialog2.open();
+				}
+			}
+
+			function OnFailure() {
+				var BootstrapDialog0=new BootstrapDialog({
+					title:"提示",
+					message: "Connection error",
+					buttons: [{
+						icon: "glyphicon glyphicon-remove",
+						label: "关闭",
+						cssClass:"btn-danger",
+						action: function(dialogItself) {
+							dialogItself.close();
+						}
+					}]
+				});
+				BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+				BootstrapDialog0.open();
+			}
+    </script>
+<!--ins_fullcontent start-->
+<div class="ins_rightmian ins_fullcontent" id="ins_rightmain">
+    <div class="ins_rightcontent">
+        <div class="content_timetoggle content_toptitle">
+            <span class="content_toptitletext">个人信息</span><button type="button" class="commonbtn bigbtn fr modify_pwd">修改密码</button>
+        </div>
+        <div class="content_main">
+            <div class="content_maintable">
+                <div id="content-body">
+@using (Ajax.BeginForm(new AjaxOptions { Url = Url.Action("Edit"), OnSuccess = "OnSuccess", OnFailure = "OnFailure" }))
+{
+   @Html.AntiForgeryToken();
+                    <ul class="users_info">
+                        <li class="noedit"><label>注册时间</label>@Html.TextBoxFor(m => m.CreateDateTime, new { disabled = "false" })</li>
+                        <li class="noedit"><label>用户账号</label>@Html.TextBoxFor(m => m.username, new { disabled = "false" }) </li>
+                        <li>
+                            <label>联系人</label>@Html.EditorFor(m => m.Contacts)
+                            @Html.ValidationMessageFor(m => m.Contacts)
+                        </li>
+
+                        
+                        <li class="noedit"><label>手机号码</label>@Html.TextBoxFor(m => m.Phone, new { disabled = "false" })  </li>
+                        <li>
+                            <label>公司名称</label>@Html.TextBoxFor(m => m.CorporateName, new { disabled = "false" })
+                            @Html.ValidationMessageFor(m => m.CorporateName)
+                        </li>
+                        <li>
+                            <label>邮箱地址</label>@Html.TextBoxFor(m => m.Email)
+                            @Html.ValidationMessageFor(m => m.Email)
+                        </li>
+                        <li>
+                            <label>详细地址</label>@Html.TextAreaFor(m => m.Address)
+                            @Html.ValidationMessageFor(m => m.Address)
+                        </li>
+                        <li>
+                            <input type="submit" value="修改" class="commonbtn bigbtn mod_userinfor" />
+                        </li>
+                    </ul>
+}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--ins_fullcontent end-->
+
+
+<!--popup start-->
+		<div class="popup_blackbg">
+			@using (Ajax.BeginForm("Changepwd",new AjaxOptions { Url = Url.Action("Changepwd"), OnSuccess = "OnSuccessfresh", OnFailure = "OnFailure" }))
+			{
+                @Html.AntiForgeryToken();
+				
+				<!--ModifyPwd start-->
+				<div class="popup smallpop ppp_modifypwd" id="ModifyPwd">
+					<div class="content_timetoggle content_toptitle popup_header">修改密码<span class="closepwd"></span></div>
+					<div class="popup_content">
+						<ul class="modifypwd">
+							<li>
+								<label>原密码</label>
+								<input data-val="true" data-val-regex="必须由6-16个英文数字组成" data-val-regex-pattern="^[A-Za-z0-9]{6,16}$" data-val-required="必填" id="Oldpwd" name="Oldpwd" placeholder="原密码" type="password" />
+								<span class="field-validation-valid" data-valmsg-for="Oldpwd" data-valmsg-replace="true"></span>
+							</li>
+							<li>
+								<label>新密码</label>
+								<input data-val="true" data-val-regex="必须由6-16个英文数字组成" data-val-regex-pattern="^[A-Za-z0-9]{6,16}$" data-val-required="必填" id="Newpwd" name="Newpwd" placeholder="新密码" type="password" />
+								<span class="field-validation-valid" data-valmsg-for="Newpwd" data-valmsg-replace="true"></span>
+							</li>
+							<li>
+								<label>确认新密码</label>
+								<input data-val="true" data-val-equalto="“确认密码”和“新密码”不匹配。" data-val-equalto-other="*.Newpwd" data-val-regex="必须由6-16个英文数字组成" data-val-regex-pattern="^[A-Za-z0-9]{6,16}$" data-val-required="必填" id="repwd" name="repwd" placeholder="确认新密码" type="password" />
+                        		<span class="field-validation-valid" data-valmsg-for="repwd" data-valmsg-replace="true"></span>
+							</li>
+						</ul>
+						<input type="submit" value="修改" class="commonbtn smallbtn changepwd" />
+					</div>
+				</div>
+				<!--ModifyPwd end-->																							
+			}
+		</div>
+		<!--popup end-->
+
+		<script type="text/javascript">						
+			
+			$(document).ready(function(){
+			    	//主要内容高度
+			    	$head=$("#ins_header").height()+30;
+				$rightmain=$(window).height()-$head-30;
+			  	$("#ins_rightmain").css("min-height",$rightmain+"px");
+
+				$(window).resize(function(){
+			  		//主要内容高度
+				    	$head=$("#ins_header").height()+30;
+					$rightmain=$(window).height()-$head-30;
+				  	$("#ins_rightmain").css("min-height",$rightmain+"px");
+			  	});
+			  	
+			  	//终端用户修改密码
+			  	$(".modify_pwd").click(function(){//打开
+					$(this).parents("body").find(".ppp_modifypwd").css("display","block");
+					$(this).parents("body").children(".popup_blackbg").css("display","block");
+				});
+				$(".closepwd").click(function(){//close
+					$(".ppp_modifypwd").css("display","none");		
+					$(".popup_blackbg").css("display","none");
+				});
+			
+			});
+		</script>

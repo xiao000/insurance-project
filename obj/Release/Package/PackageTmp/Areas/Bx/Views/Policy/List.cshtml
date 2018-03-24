@@ -1,0 +1,1023 @@
+﻿@model Bx_Core.Policy
+@{
+    ViewBag.Title = "保单管理";
+    Layout = "~/Areas/Bx/Views/Shared/_Bx.cshtml";
+}
+<style>
+	.fixed-table-toolbar .bars.pull-left{
+		float: right !important;
+	}
+</style>
+		<!--ins_fullcontent start-->
+		<div class="ins_rightmian ins_fullcontent" id="ins_rightmain">
+			<div class="ins_rightcontent">
+				<div class="content_timetoggle content_toptitle">
+					<div class="statushead BxPolicyStatus">
+						<ul class="nav nav-pills">
+							<li class="List active">全部保单</li>
+							<li class="BWaitPolicy">待b审核<span class="badge badge-danger">0</span></li>
+							<li class="BPolicyErr">b审核失败<span class="badge badge-danger">0</span></li>
+						  	<!--<li class="PolicyWaitPay">已审核待付款<span class="badge badge-danger">0</span></li>
+						  	<li class="PolicyPayed">待受理<span class="badge badge-danger">0</span></li>-->
+						  	<li class="AllPolicyed">已生效<span class="badge badge-danger">0</span></li>
+						  	<li class="BPolicyWaitBack">待b退保<span class="badge badge-danger">0</span></li>
+						  	<li class="BPolicyBackErr">b退保审核失败<span class="badge badge-danger">0</span></li>
+						  	<li class="PolicyBack">已退保<span class="badge badge-danger">0</span></li>
+						  	<li class="BPolicyWaitChange">待b变更<span class="badge badge-danger">0</span></li>
+						  	<li class="BPolicyChangedErr">b变更审核失败<span class="badge badge-danger">0</span></li>
+						  	<li class="PolicyChanged">已变更<span class="badge badge-danger">0</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="content_main">
+					<div id="BxPolicy_Toolbar" class="btn-group form-inline">
+						<button id="exportall" type="button" class="commonbtn exportbtn">导出all</button>
+			        </div>
+			        <table id="BxPolicy">
+					</table>
+				</div>
+			</div>
+		</div>
+		<!--ins_fullcontent end-->
+
+		<script type="text/javascript">
+			$(function() {
+				//主要内容高度
+	    			$head=$("#ins_header").height()+30;
+				$rightmain=$(window).height()-$head-30;
+	  			$("#ins_rightmain").css("min-height",$rightmain+"px");
+	  			$tablebox=$(".content_timetoggle").height();
+				$btable=$rightmain-$tablebox;
+	  			$(".bootstrap-table").css("min-height",$btable+"px");
+	  			
+	  			$(window).resize(function(){
+					//主要内容高度
+					$head=$("#ins_header").height()+30;
+					$rightmain=$(window).height()-$head-30;
+					$("#ins_rightmain").css("min-height",$rightmain+"px");
+					$tablebox=$(".content_timetoggle").height();
+					$btable=$rightmain-$tablebox;
+					$(".bootstrap-table").css("min-height",$btable+"px");
+				});
+
+				function BxPolicyStatusAjax(){
+					$.ajax({
+						type : 'post',  
+						url : "/BX/Policy/Count", 
+						success: function(data){
+							$(".BWaitPolicy span").text(data.Data.BWaitPolicy);
+							$(".BPolicyErr span").text(data.Data.BPolicyErr);
+							/*$(".PolicyWaitPay span").text(data.Data.PolicyWaitPay);
+							$(".PolicyPayed span").text(data.Data.PolicyPayed);*/
+							$(".AllPolicyed span").text(data.Data.AllPolicyed);
+							$(".BPolicyWaitBack span").text(data.Data.BPolicyWaitBack);
+							$(".BPolicyBackErr span").text(data.Data.BPolicyBackErr);
+							$(".PolicyBack span").text(data.Data.PolicyBack);
+							$(".BPolicyWaitChange span").text(data.Data.BPolicyWaitChange);
+							$(".BPolicyChangedErr span").text(data.Data.BPolicyChangedErr);
+							$(".PolicyChanged span").text(data.Data.PolicyChanged);
+						}
+					});
+				};
+				BxPolicyStatusAjax();
+				$("#BxPolicy").bootstrapTable('destroy');
+				$('#BxPolicy').bootstrapTable({
+					url: '/Bx/Policy/List',
+					data_id:'0',
+					method: 'post', //请求方式（*）
+					toolbar: '#BxPolicy_Toolbar', //工具按钮用哪个容器
+					striped: true, //是否显示行间隔色
+					cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+					pagination: true, //是否显示分页（*）
+					sortable: false, //是否启用排序
+					sortOrder: "desc", //排序方式
+					//queryParams:queryParams,//传递参数（*）
+					sidePagination: "server", //分页方式：client客户端分页，server服务端分页（*）
+					pageNumber: 1, //初始化加载第一页，默认第一页
+					pageSize: 10, //每页的记录行数（*）
+					queryParamsType: "limit",
+					sortable: true, //是否启用排序 
+					//sortOrder: "ID asc",
+					/*pageList: [1,2,3], */ //可供选择的每页的行数（*）
+					search: true, //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+					locale: "zh-CN",
+					strictSearch: true,
+					showColumns: true, //是否显示所有的列
+					//showRefresh: true,                  //是否显示刷新按钮
+					minimumCountColumns: 2, //最少允许的列数
+					uniqueId: "Id", //每一行的唯一标识，一般为主键列
+					showToggle: false, //是否显示详细视图和列表视图的切换按钮
+					cardView: false, //是否显示详细视图
+					detailView: true, //是否显示父子表
+					//height: $th, //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+					showExport: true,
+					idField: "PolicyId",
+					exportTypes: ['excel'],
+            		clickToSelect: false, //是否启用点击选中行  /true
+					contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+					searchAlign: "left",
+					buttonsAlign: "right",
+					toolbarAlign: "right",
+					columns: [{
+							checkbox: true,
+						},
+						{
+							field: "Id",
+							title: "序号",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function (value, row, index) {
+							    var pageSize=$('#BxPolicy').bootstrapTable('getOptions').pageSize;//通过表的#id 可以得到每页多少条
+                			    			    var pageNumber=$('#BxPolicy').bootstrapTable('getOptions').pageNumber;//通过表的#id 可以得到当前第几页
+                			    			    return pageSize * (pageNumber - 1) + index + 1;    //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
+							}
+						},
+						{
+							field: "PolicyNumber",
+							title: "订单号",
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						{
+							field: "PolicyCreateTime",
+							title: "提交时间",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function(value){
+								var str=value.replace("/Date(","");
+								var txt=str.replace(")/","");
+								return new Date(parseInt(txt)).toLocaleString(); 
+							}
+						},
+						{
+							field: "CorporateName",
+							title: "商户名称",
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						{
+							field: "Contacts",
+							title: "被保险人",
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						{
+							field: "PolRemark",
+							title: "备注",
+							align: "center",
+							valign: "middle"
+						},
+						{
+							field: "UserType",
+							title: "用户类型",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+						
+						},
+						{
+							field: "IDCardType",
+							title: "证件类型",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+						
+						},
+						{
+							field: "IDCardNum",
+							title: "证件号码",
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						{
+		                    field: "BxCorporateName",
+		                    title: "保险公司",
+		                    align: "center",
+		                    valign: "middle",
+		                    sortable: "true"
+		                },
+		                {
+		                    field: "BxType",
+		                    title: "保险种类",
+		                    align: "center",
+		                    valign: "middle",
+		                    sortable: "true"
+		                },
+		                {
+		                    field: "BxIndustry",
+		                    title: "保险行业",
+		                    align: "center",
+		                    valign: "middle",
+		                    sortable: "true"
+		                },
+						{
+							field: "PolicyContent",
+							title: "承保内容",
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						{
+							field: "PolicyId",
+							title: "投保地址",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function(value,data){
+								value=data.Province+data.City+data.Town+data.Address;
+								return value;
+							}
+						},
+						{
+							field: "PolicyDeadline",
+							title: "承保期限",
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						{
+							field: "BxAmount",
+							title: "保额/万元",
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						{
+							field: "Status",
+							title: "状态",
+							align: "center",
+							valign: "middle",
+							formatter: function(value){
+								if(value=='2'){
+									return "b审核失败";
+								}else if(value=='3'){
+									return "待b审核";
+								}else if(value=='7'){
+									return "已生效";
+								}else if(value=='11'){
+									return "待b审核退保";
+								}else if(value=='13'){
+									return "b审核退保失败";
+								}else if(value=='14'){
+									return "已退保";
+								}else if(value=='16'){
+									return "待b审核变更";
+								}else if(value=='18'){
+									return "b审核变更失败";
+								}else if(value=='19'){
+									return "已变更";
+								}else if(value=='20'){
+									return "已禁用";
+								}
+							}
+						},
+						{
+							field: "AccessTime",
+							title: "生效时间",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function(value){
+								if(value){
+									var str=value.replace("/Date(","");
+									var txt=str.replace(")/","");
+									return new Date(parseInt(txt)).toLocaleString();
+								}else{
+									return "-";
+								}
+							}
+						},
+						{
+							field: "ElePolicy",
+							title: "电子保单",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function(value,data){
+		                    	if(data.IsPolicyele){
+		                    		return "有";
+		                    	}else{
+		                            return "无";
+		                        }
+		                    }
+						},
+						{
+							field: "PolicyAnnex",
+							title: "附件",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function(value){
+								if(value){
+									return "<span class='glyphicon glyphicon-ok'></span>";
+								}else{
+									return "<span class='glyphicon glyphicon-remove'></span>";
+								}
+							}
+						},
+						{
+							field: "PolicyId",
+							title: "操作",
+							align: "center",
+							valign: "middle",
+							formatter: function(value,data) {
+								if(data.Status>='7'&&data.Status<'19'){
+									if(data.IsPolicyele){
+										return "<button class='glyphicon glyphicon-copy opeicon' data-operation='policyeleedit' data-value='" + value + "' title='回单修改'></button><button class='glyphicon glyphicon-save-file opeicon' data-operation='policyeledetail' data-value='" + value + "' title='回单详情'></button><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+									}else{
+										return "<button class='glyphicon glyphicon-open-file opeicon' data-operation='policyele' data-value='" + value + "' title='上传回单'></button><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+									}
+								}else if(data.Status=='19'){
+									//console.log("data.IsChangedPolicyele="+data.IsChangedPolicyele);
+									if(data.IsChangedPolicyele){
+										return "<button class='glyphicon glyphicon-copy opeicon' data-operation='changedpolicyeleedit' data-value='" + value + "' title='变更回单修改'></button><button class='glyphicon glyphicon-save-file opeicon' data-operation='policyeledetail' data-value='" + value + "' title='回单详情'></button><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+									}else{
+										return "<button class='glyphicon glyphicon-open-file opeicon' data-operation='changedpolicyele' data-value='" + value + "' title='上传变更回单'></button><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+									}
+									//return "<button class='glyphicon glyphicon-open-file opeicon' data-operation='changedpolicyele' data-value='" + value + "' title='上传变更回单'></button><button class='glyphicon glyphicon-copy opeicon' data-operation='changedpolicyeleedit' data-value='" + value + "' title='变更回单修改'></button><button class='glyphicon glyphicon-save-file opeicon' data-operation='policyeledetail' data-value='" + value + "' title='回单详情'></button><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+								}else{
+									return "<button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+								}
+							}
+						}
+					],
+
+					onPageChange: function(size, number) {
+					},
+					formatNoMatches: function() {
+						return '没有相关数据哦！';
+					},
+
+					onLoadSuccess: function() {
+						//详情按钮	
+						$("button[data-operation='detailusers']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "保单详情",
+								message: function(dialog) {
+
+									var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("Detail","Policy", new {area="Bx" })' + '/' + id
+								},
+								buttons: [{
+									//icon: "glyphicon glyphicon-plus",
+									label: "通过",
+									action: function(dialogItself) {
+										var bd_status = $("#bd_status").val();
+										console.log('bd_status-no='+bd_status);
+										if(bd_status==3){
+											$("#BxPolicyDetail").attr("action","/Bx/Policy/Policyed");
+											$("#BxPolicyDetail").attr("data-ajax-url","/Bx/Policy/Policyed");
+										}
+										if(bd_status==11){
+											$("#BxPolicyDetail").attr("action","/Bx/Policy/PolicyBack");
+											$("#BxPolicyDetail").attr("data-ajax-url","/Bx/Policy/PolicyBack");
+										}
+										if(bd_status==16){
+											$("#BxPolicyDetail").attr("action","/Bx/Policy/PolicyChanged");
+											$("#BxPolicyDetail").attr("data-ajax-url","/Bx/Policy/PolicyChanged");
+										}
+										$.post($("#BxPolicyDetail").attr("action"), {id:id}, function(data) {
+											console.log(id);
+											if(data.Status == 1) {
+												BootstrapDialog.show({
+													message: data.Message,
+													buttons: [{
+														icon: "glyphicon glyphicon-ok",
+														label: "确认",
+														action: function(dialogRef) {
+															$('#BxPolicy').bootstrapTable("refresh");
+															BxPolicyStatusAjax();
+															dialogRef.close();
+															dialogItself.close();
+															addDialog.close();
+														}
+													}]
+
+												});
+											} else BootstrapDialog.alert(data.Message);
+										}, "json");
+										$("form").validate();
+										/*if(bd_status==3||bd_status==16){
+											BootstrapDialog.show({
+												title: "上传回单",
+												message: $('<div></div>').load('@Url.Action("PolicyEle","Policy", new {area="Bx" })'+ '/' + id),
+												buttons: [{
+													//icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogRefs) {
+														var policyele=$("#policyele").val();
+														$.post($("#BxPolicyDetail").attr("action"), {id:id,policyele:policyele}, function(data) {
+															console.log(id);
+															if(data.Status == 1) {
+																BootstrapDialog.show({
+																	message: data.Message,
+																	buttons: [{
+																		icon: "glyphicon glyphicon-ok",
+																		label: "通过并上传回单",
+																		action: function(dialogRef) {
+																			$('#BxPolicy').bootstrapTable("refresh");
+																			BxPolicyStatusAjax();
+																			dialogRef.close();
+																			dialogRefs.close();
+																			dialogItself.close();
+																			addDialog.close();
+																		}
+																	}]
+				
+																});
+															} else BootstrapDialog.alert(data.Message);
+														}, "json");
+														$("form").validate();
+													}
+												}]
+	
+											});
+										}else if(bd_status==11){
+											$.post($("#BxPolicyDetail").attr("action"), {id:id}, function(data) {
+												console.log(id);
+												if(data.Status == 1) {
+													BootstrapDialog.show({
+														message: data.Message,
+														buttons: [{
+															icon: "glyphicon glyphicon-ok",
+															label: "确定",
+															action: function(dialogItself) {
+																$('#BxPolicy').bootstrapTable("refresh");
+																BxPolicyStatusAjax();
+																dialogItself.close();
+																addDialog.close();
+															}
+														}]
+	
+													});
+												} else BootstrapDialog.alert(data.Message);
+											}, "json");
+											$("form").validate();
+										}*/
+										
+											
+									}
+								}, {
+									//icon: "glyphicon glyphicon-remove",
+									label: "不通过",
+									action: function(dialogItself) {
+										var bd_status = $("#bd_status").val();
+										console.log('bd_status-no='+bd_status);
+										if(bd_status==3){
+											$("#BxPolicyDetail").attr("action","/Bx/Policy/BPolicyErr");
+											$("#BxPolicyDetail").attr("data-ajax-url","/Bx/Policy/BPolicyErr");
+										}
+										if(bd_status==11){
+											$("#BxPolicyDetail").attr("action","/Bx/Policy/BPolicyBackErr");
+											$("#BxPolicyDetail").attr("data-ajax-url","/Bx/Policy/BPolicyBackErr");
+										}
+										if(bd_status==16){
+											$("#BxPolicyDetail").attr("action","/Bx/Policy/BPolicyChangedErr");
+											$("#BxPolicyDetail").attr("data-ajax-url","/Bx/Policy/BPolicyChangedErr");
+										}
+										BootstrapDialog.show({
+											title:"不通过原因",
+											message: $('<textarea rows="5" name="APolicyErrReason" id="APolicyErrReason" class="APolicyErrReason"></textarea>'),
+											buttons: [{
+												icon: "glyphicon glyphicon-ok",
+												label: "保存",
+												action: function(dialogItself) {
+													var reason=$("#APolicyErrReason").val();/*'@Url.Action("BPolicyErr", "Policy", new {area="Bx"})'*/
+													$.post($("#BxPolicyDetail").attr("action"), {id: id, APolicyErrReason: reason}, function(data) {
+														/*console.log(id);
+														console.log(reason);
+														console.log(data.Status);*/
+														if(data.Status == 1) {
+															BootstrapDialog.show({
+																message: data.Message,
+																buttons: [{
+																	icon: "glyphicon glyphicon-ok",
+																	label: "确定",
+																	action: function(dialogRef) {
+																		$('#BxPolicy').bootstrapTable("refresh");
+																		BxPolicyStatusAjax();
+																		dialogRef.close();
+																		dialogItself.close();
+																		addDialog.close();
+																	}
+																}]
+															});
+														} else BootstrapDialog.alert(data.Message);
+													}, "json");
+													$("form").validate();
+												}
+											}]
+										});
+									}
+								}]
+							});
+							addDialog.open();
+						});
+						//上传回单按钮	
+						$("button[data-operation='policyele']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "回单",
+								message: function(dialog) {
+
+									var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("Policyele","Policy", new {area="Bx" })' + '/' + id
+								},
+								buttons: [{
+									icon: "glyphicon glyphicon-ok",
+									label: "确定",
+									action: function(dialogItself) {
+										/*var policyele=$("#policyele").val();*/
+										$(".z_file input").remove();
+										var addPolicyele = $('.Policyele_add').find('.up-section').length;
+										
+										var data = new FormData();
+										data.append("id", id);
+										for(var i= 0; i<addPolicyele;i++){
+											console.log('val'+i+'='+$('.Policyele_add').find('.up-section').eq(i).find('input[name="file"]').val());
+											var inputID = 'inputID'+i;
+											$('.Policyele_add').find('.up-section').eq(i).find('input[name="file"]').attr('id',inputID);
+											data.append("file", document.getElementById(inputID).files[0]);
+										}
+										
+										$.ajax({
+											type : 'POST',
+											url : '/Bx/Policy/Policyele/'+id,
+											data : data,
+											processData : false,
+											contentType : false,
+											dataType : 'json',
+											success : function(data) {
+												//console.log(data);
+												if(data.Status == 1) {
+													BootstrapDialog.show({
+														message: data.Message,
+														buttons: [{
+															icon: "glyphicon glyphicon-ok",
+															label: "成功上传回单",
+															action: function(dialogRef) {
+																$('#BxPolicy').bootstrapTable("refresh");
+																BxPolicyStatusAjax();
+																dialogRef.close();
+																dialogItself.close();
+																addDialog.close();
+															}
+														}]
+													});
+												}  else {
+													if(data.Message==null){
+														BootstrapDialog.alert('上传不成功');
+														$('#BxPolicy').bootstrapTable("refresh");
+													}else{
+														BootstrapDialog.alert(data.Message);
+														$('#BxPolicy').bootstrapTable("refresh");
+													}
+												};
+											}
+										});
+										$("form").validate();
+									}
+								},{
+									icon: "glyphicon glyphicon-remove",
+									label: "取消",
+									action: function(dialogItself) {
+										$('#BxPolicy').bootstrapTable("refresh");
+										dialogItself.close();
+										addDialog.close();
+									}
+								}]
+							});
+							addDialog.open();
+						});
+						//回单修改按钮	
+						$("button[data-operation='policyeleedit']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "回单",
+								message: function(dialog) {
+									var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("PolicyeleEdit","Policy", new {area="Bx" })' + '/' + id
+								},
+								buttons: [{
+									icon: "glyphicon glyphicon-ok",
+									label: "确定",
+									action: function(dialogItself) {
+										//$(".z_file input").remove();
+										var addPolicyele = $('.Policyele_add').find('.up-section').length;
+										var data = new FormData();
+										data.append("id", id);
+										for(var i= 0; i<addPolicyele;i++){
+											if($('.Policyele_add').find('.up-section').eq(i).find('input[name="file"]').length !='0'){
+												console.log('val'+i+'='+$('.Policyele_add').find('.up-section').eq(i).find('input[name="file"]').length);
+												var inputID = 'inputID'+i;
+												$('.Policyele_add').find('.up-section').eq(i).find('input[name="file"]').attr('id',inputID);
+												data.append("file", document.getElementById(inputID).files[0]);
+											}
+										}
+										$.ajax({
+											type : 'POST',
+											url : '/bx/Policy/policyeleEdit/'+id,
+											data : data,
+											processData : false,
+											contentType : false,
+											dataType : 'json',
+											success : function(data) {
+												console.log(data);
+												if(data.Status == 1) {
+													BootstrapDialog.show({
+														message: data.Message!=null?data.Message:"恭喜,上传文件成功!",
+														buttons: [{
+															icon: "glyphicon glyphicon-ok",
+															label: "成功上传回单",
+															action: function(dialogRef) {
+																$('#BxPolicy').bootstrapTable("refresh");
+																BxPolicyStatusAjax();
+																dialogRef.close();
+																dialogItself.close();
+																addDialog.close();
+															}
+														}]
+													});
+												} else {
+													if(data.Message==null){
+														BootstrapDialog.alert('上传不成功');
+														$('#BxPolicy').bootstrapTable("refresh");
+													}else{
+														BootstrapDialog.alert(data.Message);
+														$('#BxPolicy').bootstrapTable("refresh");
+													}
+												}
+											}
+										});
+										$("form").validate();
+									}
+								},{
+									icon: "glyphicon glyphicon-remove",
+									label: "关闭",
+									action: function(dialogItself) {
+										$('#BxPolicy').bootstrapTable("refresh");
+										dialogItself.close();
+										addDialog.close();
+									}
+								}]
+							});
+							addDialog.open();
+						});
+						//回单详情按钮
+						$("button[data-operation='policyeledetail']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "回单详情",
+								message: function(dialog) {
+									
+									var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("PolicyeleDetail","Policy",new {area="Bx" })' + '/' + id
+								},
+								buttons: [{
+									icon: "glyphicon glyphicon-remove",
+									label: "关闭",
+									action: function(dialogItself) {
+										dialogItself.close();
+									}
+								}]
+							});
+							addDialog.open();
+						});
+						//上传变更回单按钮	
+						$("button[data-operation='changedpolicyele']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "变更回单",
+								message: function(dialog) {
+
+									var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("ChangedPolicyele","Policy", new {area="Bx" })' + '?ID=' + id
+								},
+								buttons: [{
+									icon: "glyphicon glyphicon-ok",
+									label: "确定",
+									action: function(dialogItself) {
+										$(".z_file input").remove();
+										var addPolicyele = $('.ChangedPolicyEle_add').find('.picBox_add').find('.up-section').length;
+										
+										var data = new FormData();
+										data.append("id", id);
+										for(var i= 0; i<addPolicyele;i++){
+											console.log('val'+i+'='+$('.ChangedPolicyEle_add').find('.picBox_add').find('.up-section').eq(i).find('input[name="file"]').val());
+											var inputID = 'inputID'+i;
+											$('.ChangedPolicyEle_add').find('.picBox_add').find('.up-section').eq(i).find('input[name="file"]').attr('id',inputID);
+											data.append("", document.getElementById(inputID).files[0]);
+										}
+										
+										$.ajax({
+											type : 'POST',
+											url : '/Bx/Policy/ChangedPolicyele/'+id,
+											data : data,
+											processData : false,
+											contentType : false,
+											dataType : 'json',
+											success : function(data) {
+												//console.log(data);
+												if(data.Status == 1) {
+													BootstrapDialog.show({
+														message: data.Message,
+														buttons: [{
+															icon: "glyphicon glyphicon-ok",
+															label: "成功上传变更回单",
+															action: function(dialogRef) {
+																$('#BxPolicy').bootstrapTable("refresh");
+																BxPolicyStatusAjax();
+																dialogRef.close();
+																dialogItself.close();
+																addDialog.close();
+															}
+														}]
+													});
+												}  else {
+													if(data.Message==null){
+														BootstrapDialog.alert('上传不成功');
+														$('#BxPolicy').bootstrapTable("refresh");
+													}else{
+														BootstrapDialog.alert(data.Message);
+														$('#BxPolicy').bootstrapTable("refresh");
+													}
+												};
+											}
+										});
+										$("form").validate();
+									}
+								},{
+									icon: "glyphicon glyphicon-remove",
+									label: "取消",
+									action: function(dialogItself) {
+										$('#BxPolicy').bootstrapTable("refresh");
+										dialogItself.close();
+										addDialog.close();
+									}
+								}]
+							});
+							addDialog.open();
+						});
+						//变更回单修改按钮	
+						$("button[data-operation='changedpolicyeleedit']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "变更回单修改",
+								message: function(dialog) {
+									var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("ChangedPolicyeleEdit","Policy", new {area="Bx" })' + '?ID=' + id
+								},
+								buttons: [{
+									icon: "glyphicon glyphicon-ok",
+									label: "确定",
+									action: function(dialogItself) {
+										//$(".z_file input").remove();
+										var addPolicyele = $('.ChangedPolicyEleEdit_add').find('.picBox_add').find('.up-section').length;
+										var data = new FormData();
+										data.append("id", id);
+										for(var i= 0; i<addPolicyele;i++){
+											if($('.ChangedPolicyEleEdit_add').find('.picBox_add').find('.up-section').eq(i).find('input[name="file"]').length !='0'){
+												console.log('val'+i+'='+$('.ChangedPolicyEleEdit_add').find('.picBox_add').find('.up-section').eq(i).find('input[name="file"]').length);
+												var inputID = 'inputID'+i;
+												$('.ChangedPolicyEleEdit_add').find('.picBox_add').find('.up-section').eq(i).find('input[name="file"]').attr('id',inputID);
+												data.append("", document.getElementById(inputID).files[0]);
+											}
+										}
+										$.ajax({
+											type : 'POST',
+											url : '/bx/Policy/ChangedPolicyeleEdit/'+id,
+											data : data,
+											processData : false,
+											contentType : false,
+											dataType : 'json',
+											success : function(data) {
+												console.log(data);
+												if(data.Status == 1) {
+													BootstrapDialog.show({
+														message: data.Message!=null?data.Message:"恭喜,上传文件成功!",
+														buttons: [{
+															icon: "glyphicon glyphicon-ok",
+															label: "成功上传变更回单",
+															action: function(dialogRef) {
+																$('#BxPolicy').bootstrapTable("refresh");
+																BxPolicyStatusAjax();
+																dialogRef.close();
+																dialogItself.close();
+																addDialog.close();
+															}
+														}]
+													});
+												} else {
+													if(data.Message==null){
+														BootstrapDialog.alert('上传不成功');
+														$('#BxPolicy').bootstrapTable("refresh");
+													}else{
+														BootstrapDialog.alert(data.Message);
+														$('#BxPolicy').bootstrapTable("refresh");
+													}
+												}
+											}
+										});
+										$("form").validate();
+									}
+								},{
+									icon: "glyphicon glyphicon-remove",
+									label: "关闭",
+									action: function(dialogItself) {
+										$('#BxPolicy').bootstrapTable("refresh");
+										dialogItself.close();
+										addDialog.close();
+									}
+								}]
+							});
+							addDialog.open();
+						});
+					}
+				});
+
+				$(window).resize(function() {
+					$('#BxPolicy').bootstrapTable('resetView');
+				});
+				
+				//添加按钮
+				$("#BxPolicy_Add").click(function() {
+					var addDialog = new BootstrapDialog({
+						title: "新增保单",
+						message: function(dialog) {
+
+							var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+							var pageToLoad = dialog.getData('pageToLoad');
+							$message.load(pageToLoad);
+							return $message;
+						},
+						data: {
+							'pageToLoad': '@Url.Action("Add","Policy", new {area="Bx" })'
+						},
+						buttons: [{
+							icon: "glyphicon glyphicon-plus",
+							label: "提交保单",
+							action: function(dialogItself) {
+								$.post($("#BxPolicyAdd").attr("action"), $("#BxPolicyAdd").serializeArray(), function(data) {
+									if(data.Status == 1) {
+										BootstrapDialog.show({
+											message: data.Message,
+											buttons: [{
+												icon: "glyphicon glyphicon-ok",
+												label: "确定",
+												action: function(dialogItself) {
+													$('#BxPolicy').bootstrapTable("refresh");
+													BxPolicyStatusAjax();
+													dialogItself.close();
+													addDialog.close();
+												}
+											}]
+										});
+									} else BootstrapDialog.alert(data.Message);
+								}, "json");
+								$("#BxPolicyAdd").validate();
+							}
+						}]
+					});
+					addDialog.open();
+				});
+				//添加按钮结束
+				
+				//导出所有数据按钮
+				$("#exportall").click(function() {
+					var exportDialog = new BootstrapDialog({
+						title: "导出所有数据",
+						message: function(dialog) {
+
+							var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+							var pageToLoad = dialog.getData('pageToLoad');
+							$message.load(pageToLoad);
+
+							return $message;
+						},
+						data: {
+							'pageToLoad': '@Url.Action("export","Policy", new {area="Bx" })'
+						}
+					});
+					exportDialog.open();
+				});
+				//导出所有数据按钮结束
+				
+			});
+			Date.prototype.toLocaleString = function() {
+				return this.getFullYear() + "-" + (this.getMonth() + 1) + "-" + this.getDate() + " " + this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds();
+   			};
+			function getIdSelections() {
+				return $.map($('#BxPolicy').bootstrapTable('getSelections'), function(row) {
+					return row.id
+				});
+			}
+			//得到查询的参数
+			queryParams = function(params) {
+				var temp = { //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+					//limit: params.limit,   //页面大小
+					limit: params.pageSize, //页面大小
+					offset: params.pageNumber, //页码
+				};
+				return temp;
+			};
+			function responseHandler(res) {
+				$.each(res.rows, function(i, row) {
+					row.state = $.inArray(row.id, selections) !== -1;
+				});
+				return res;
+			}
+			function detailFormatter(index, row) {
+				var html = [];
+				$.each(row, function(key, value) {
+					html.push('<p><b>' + key + ':</b> ' + value + '</p>');
+				});
+				return html.join('');
+			}
+
+			$(document).ready(function(){
+				$(".BxPolicyStatus ul li").on("click",function(){
+					$(this).addClass("active").siblings().removeClass("active");
+					if($(".BxPolicyStatus ul li.active").hasClass("List")){
+						$('#BxPolicy').bootstrapTable('refresh',{url:'/Bx/Policy/List'});
+					}
+					if($(".BxPolicyStatus ul li.active").hasClass("BWaitPolicy")){
+						$('#BxPolicy').bootstrapTable('refresh',{url:'/Bx/Policy/List_BWaitPolicy'});
+					}
+					if($(".BxPolicyStatus ul li.active").hasClass("BPolicyErr")){
+						$('#BxPolicy').bootstrapTable('refresh',{url:'/Bx/Policy/List_BPolicyErr'});
+					}
+					/*if($(".BxPolicyStatus ul li.active").hasClass("PolicyWaitPay")){
+						$('#BxPolicy').bootstrapTable('refresh',{url:'/Bx/Policy/List_PolicyWaitPay'});
+					}
+					if($(".BxPolicyStatus ul li.active").hasClass("PolicyPayed")){
+						$('#BxPolicy').bootstrapTable('refresh',{url:'/Bx/Policy/List_PolicyPayed'});
+					}*/
+					if($(".BxPolicyStatus ul li.active").hasClass("AllPolicyed")){
+						$('#BxPolicy').bootstrapTable('refresh',{url:'/Bx/Policy/List_AllPolicyed'});
+					}
+					if($(".BxPolicyStatus ul li.active").hasClass("BPolicyWaitBack")){
+						$('#BxPolicy').bootstrapTable('refresh',{url:'/Bx/Policy/List_BPolicyWaitBack'});
+					}
+					if($(".BxPolicyStatus ul li.active").hasClass("BPolicyBackErr")){
+						$('#BxPolicy').bootstrapTable('refresh',{url:'/Bx/Policy/List_BPolicyBackErr'});
+					}
+					if($(".BxPolicyStatus ul li.active").hasClass("PolicyBack")){
+						$('#BxPolicy').bootstrapTable('refresh',{url:'/Bx/Policy/List_PolicyBack'});
+					}
+					if($(".BxPolicyStatus ul li.active").hasClass("BPolicyWaitChange")){
+						$('#BxPolicy').bootstrapTable('refresh',{url:'/Bx/Policy/List_BPolicyWaitChange'});
+					}
+					if($(".BxPolicyStatus ul li.active").hasClass("BPolicyChangedErr")){
+						$('#BxPolicy').bootstrapTable('refresh',{url:'/Bx/Policy/List_BPolicyChangedErr'});
+					}
+					if($(".BxPolicyStatus ul li.active").hasClass("PolicyChanged")){
+						$('#BxPolicy').bootstrapTable('refresh',{url:'/Bx/Policy/List_PolicyChanged'});
+					}
+				});
+			});
+		</script>
+
+

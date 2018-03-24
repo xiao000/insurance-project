@@ -1,0 +1,837 @@
+﻿
+@{
+    ViewBag.Title = "保单管理";
+    Layout = "~/Views/Shared/_Customer.cshtml";
+}
+
+<!--ins_fullcontent start-->
+		<div class="ins_rightmian ins_fullcontent" id="ins_rightmain">
+			<div class="ins_rightcontent">
+				<div class="content_timetoggle content_toptitle">
+					<div class="statushead PolicyStatus">
+						<ul class="nav nav-pills">
+							<li class="List active">全部保单</li>
+							<li class="AllWaitPolicy">待审核<span class="badge badge-danger">0</span></li>
+							<li class="AllPolicyErr">审核失败<span class="badge badge-danger">0</span></li>
+						  	<li class="AllPolicyed">已生效<span class="badge badge-danger">0</span></li>
+						  	<li class="AllPolicyWaitBack">待退保<span class="badge badge-danger">0</span></li>
+						  	<li class="AllPolicyBackErr">退保审核失败<span class="badge badge-danger">0</span></li>
+						  	<li class="PolicyBack">已退保<span class="badge badge-danger">0</span></li>
+						  	<li class="AllPolicyWaitChange">待变更<span class="badge badge-danger">0</span></li>
+						  	<li class="APolicyChangedErr">变更审核失败<span class="badge badge-danger">0</span></li>
+						  	<li class="PolicyChanged">已变更<span class="badge badge-danger">0</span></li>
+						  	<li class="PolicyForbid">已禁用<span class="badge badge-danger">0</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="content_main">
+					<!--<div class="tabtop"><a class="commonbtn bigbtn fl disabled" href="/Admin/customer/ExportToExcel?Length=8">导出 EXCSL</a></div>-->
+					<div id="CPolicy_Toolbar" class="btn-group form-inline">
+			            <button id="CPolicy_Add" type="button" class="commonbtn smallbtn" style="margin-right:15px;">新增</button>
+			        	<!-- <button id="CPolicy_Pay" type="button" class="commonbtn smallbtn">付款</button> -->
+			        	<!-- <div class="input-group">
+					      <input type="text" class="form-control" aria-label="...">
+					      <div class="input-group-btn">
+					        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">状态<span class="caret"></span></button>
+					        <ul class="dropdown-menu dropdown-menu-right">
+					          <li><a href="#">待审核</a></li>
+					          <li><a href="#">审核失败</a></li>
+					          <li><a href="#">已审核待付款</a></li>
+					          <li><a href="#">已付款</a></li>
+					          <li><a href="#">已生效</a></li>
+					          <li><a href="#">待退保</a></li>
+					          <li><a href="#">退保失败</a></li>
+					          <li><a href="#">已退保</a></li>
+					          <li><a href="#">待变更</a></li>
+					          <li><a href="#">变更失败</a></li>
+					          <li><a href="#">已变更</a></li>
+					          <li><a href="#">已禁用</a></li>
+					        </ul>
+					      </div>
+					    </div>-->
+					</div>
+			        <table id="CPolicy">
+					</table>
+				</div>
+			</div>
+		</div>
+		<!--ins_fullcontent end-->
+
+		<script type="text/javascript">
+	    $(function() {
+	    	//主要内容高度
+			$head=$("#ins_header").height()+30;
+			$rightmain=$(window).height()-$head-30;
+			$("#ins_rightmain").css("min-height",$rightmain+"px");
+			$tablebox=$(".content_timetoggle").height();
+			$btable=$rightmain-$tablebox;
+			$(".bootstrap-table").css("min-height",$btable+"px");
+	    	
+			$(window).resize(function(){
+				//主要内容高度
+				$head=$("#ins_header").height()+30;
+				$rightmain=$(window).height()-$head-30;
+				$("#ins_rightmain").css("min-height",$rightmain+"px");
+				$tablebox=$(".content_timetoggle").height();
+				$btable=$rightmain-$tablebox;
+				$(".bootstrap-table").css("min-height",$btable+"px");
+			});
+	
+	    	$("#CPolicy_Pay").on("click",function(){
+	    		console.log(getIdSelections());
+	    		var policyid=getIdSelections();
+	    		$.ajax({
+	                type : 'post',
+	                url : "/Policy/Pay",
+	                data: "pid="+policyid,
+	                success: function(data){
+	                	BootstrapDialog.show({
+			                title: "成功信息",
+			                message: data.Message,
+			                buttons: [{
+			                    icon: "glyphicon glyphicon-remove",
+			                    label: "关闭",
+			                    action: function (dialogItself) {
+			                    	$('#CPolicy').bootstrapTable("refresh");
+			                        dialogItself.close();
+			                        PolicyStatusAjax();
+			                    }
+			                }]
+			            });
+	                }
+	            });
+	    	});
+	    	
+	        function PolicyStatusAjax(){
+	            $.ajax({
+	                type : 'post',
+	                url : "/Policy/Count",
+	                success: function(data){
+	                    $(".AllWaitPolicy span").text(data.Data.AllWaitPolicy);
+	                    $(".AllPolicyErr span").text(data.Data.AllPolicyErr);
+	                    $(".AllPolicyed span").text(data.Data.AllPolicyed);
+	                    $(".AllPolicyWaitBack span").text(data.Data.AllPolicyWaitBack);
+	                    $(".AllPolicyBackErr span").text(data.Data.AllPolicyBackErr);
+	                    $(".PolicyBack span").text(data.Data.PolicyBack);
+	                    $(".AllPolicyWaitChange span").text(data.Data.AllPolicyWaitChange);
+	                    $(".APolicyChangedErr span").text(data.Data.APolicyChangedErr);
+	                    $(".PolicyChanged span").text(data.Data.PolicyChanged);
+	                    $(".PolicyForbid span").text(data.Data.PolicyForbid);
+	                }
+	            });
+	            if($(".statushead ul li span").text()==0){
+                	$(this).parent("li").css("display","none");
+                }else{
+                	$(this).parent("li").css("display","block");
+                }
+	        };
+	        PolicyStatusAjax();
+	
+	        $('#CPolicy').bootstrapTable({
+	            url: '/Policy/List',
+	            data_id:'0',
+	            method: 'post', //请求方式（*）
+	            toolbar: '#CPolicy_Toolbar', //工具按钮用哪个容器
+	            striped: true, //是否显示行间隔色
+	            cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+	            pagination: true, //是否显示分页（*）
+	            sortable: false, //是否启用排序
+	            sortOrder: "desc", //排序方式
+	            //queryParams:queryParams,//传递参数（*）
+	            sidePagination: "server", //分页方式：client客户端分页，server服务端分页（*）
+	            pageNumber: 1, //初始化加载第一页，默认第一页
+	            pageSize: 10, //每页的记录行数（*）
+	            queryParamsType: "limit",
+	            sortable: true, //是否启用排序
+	            //sortOrder: "ID asc",
+	            /*pageList: [1,2,3], */ //可供选择的每页的行数（*）
+	            search: true, //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+	            locale: "zh-CN",
+	            strictSearch: true,
+	            showColumns: true, //是否显示所有的列
+	            //showRefresh: true,                  //是否显示刷新按钮
+	            minimumCountColumns: 2, //最少允许的列数
+	            clickToSelect: false, //是否启用点击选中行  /true
+	            uniqueId: "PolicyId", //每一行的唯一标识，一般为主键列
+	            showToggle: false, //是否显示详细视图和列表视图的切换按钮
+	            cardView: false, //是否显示详细视图
+	            detailView: true, //是否显示父子表
+	            //height: 500, //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+	            showExport: true,
+	            idField: "PolicyId",
+	            exportTypes: ['excel'],
+	            clickToSelect: false,
+	            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+	            searchAlign: "left",
+	            buttonsAlign: "right",
+	            toolbarAlign: "right",
+	            columns: [{
+	                checkbox: true,
+	            },
+	                {
+	                    field: "Id",
+	                    title: "序号",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true",
+	                    formatter: function (value, row, index) {
+	                        var pageSize=$('#CPolicy').bootstrapTable('getOptions').pageSize;//通过表的#id 可以得到每页多少条
+	                        var pageNumber=$('#CPolicy').bootstrapTable('getOptions').pageNumber;//通过表的#id 可以得到当前第几页
+	                        return pageSize * (pageNumber - 1) + index + 1;    //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
+	                    }
+	                },
+	                {
+	                    field: "Creater",
+	                    title: "账号",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "PolicyNumber",
+	                    title: "订单号",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "PolicyCreateTime",
+	                    title: "提交时间",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true",
+	                    formatter: function(value){
+	                        var str=value.replace("/Date(","");
+	                        var txt=str.replace(")/","");
+	                        return new Date(parseInt(txt)).toLocaleString();
+	                    }
+	                },
+	                {
+	                    field: "CorporateName",
+	                    title: "商户名称",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "Contacts",
+	                    title: "被保险人",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "UserType",
+	                    title: "用户类型",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true",
+	
+	                },
+	                {
+	                    field: "IDCardType",
+	                    title: "证件类型",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true",
+	
+	                },
+	                {
+	                    field: "IDCardNum",
+	                    title: "证件号码",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "Phone",
+	                    title: "手机号码",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "PolicyContent",
+	                    title: "承保内容",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "PolicyId",
+	                    title: "投保地址",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true",
+	                    formatter: function(value,data){
+	                        value=data.Province+data.City+data.Town+data.Address;
+	                        return value;
+	                    }
+	                },
+	                {
+	                    field: "BxCorporateName",
+	                    title: "保险公司",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "BxType",
+	                    title: "保险种类",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "BxIndustry",
+	                    title: "保险行业",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "PolicyDeadline",
+	                    title: "承保期限",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "BxAmount",
+	                    title: "保额/万元",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "BxPubRate",
+	                    title: "费率",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "PayAmount",
+	                    title: "付款金额/元",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true"
+	                },
+	                {
+	                    field: "Status",
+	                    title: "状态",
+	                    align: "center",
+	                    valign: "middle",
+	                    formatter: function(value){
+							if(value=='0'||value=='3'){
+								return "待审核";
+							}else if(value=='1'||value=='2'){
+								return "审核失败";
+							}else if(value=='4'){
+								return "已审核待付款";
+							}else if(value=='5'){
+								return "已付款";
+							}else if(value=='7'){
+								return "已生效";
+							}else if(value=='10'||value=='11'){
+								return "待退保";
+							}else if(value=='12'||value=='13'){
+								return "退保失败";
+							}else if(value=='14'){
+								return "已退保";
+							}else if(value=='15'||value=='16'){
+								return "待变更";
+							}else if(value=='17'||value=='18'){
+								return "变更失败";
+							}else if(value=='19'){
+								return "已变更";
+							}else if(value=='20'){
+								return "已禁用";
+							}
+						}
+	                },
+	                {
+						field: "AccessTime",
+						title: "生效时间",
+						align: "center",
+						valign: "middle",
+						sortable: "true",
+						formatter: function(value){
+							if(value){
+								var str=value.replace("/Date(","");
+								var txt=str.replace(")/","");
+								return new Date(parseInt(txt)).toLocaleString();
+							}else{
+								return "-";
+							}
+						}
+					},
+	                {
+						field: "PaperPolicy",
+						title: "纸质保单",
+						align: "center",
+						valign: "middle",
+						sortable: "true",
+						formatter: function(value){
+	                        if(value){
+	                            return "是";
+	                        }else{
+	                        	return "否";
+	                        }
+	                    }
+					},
+					{
+						field: "PaperPost",
+						title: "邮寄",
+						align: "center",
+						valign: "middle",
+						sortable: "true",
+						formatter: function(value){
+	                        if(value){
+	                            return "<span class='glyphicon glyphicon-ok'></span>";
+	                        }else{
+	                            return "<span class='glyphicon glyphicon-remove'></span>";
+	                        }
+	                    }
+					},
+	                {
+	                    field: "ElePolicy",
+	                    title: "电子保单",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true",
+	                    formatter: function(value,data){
+	                    	if(data.IsPolicyele){
+	                    		return "有";
+	                    	}else{
+	                            return "无";
+	                        }
+	                    }
+	                    /*formatter: function(value,row){
+	                    	if(row.Status>=7&&row.Status<20){
+	                    		return "有";
+	                    	}else{
+	                            return "无";
+	                        }
+	                    }*/
+	                },
+	                {
+	                    field: "PolicyAnnex",
+	                    title: "附件",
+	                    align: "center",
+	                    valign: "middle",
+	                    sortable: "true",
+	                    formatter: function(value){
+	                        if(value){
+	                            return "<span class='glyphicon glyphicon-ok'></span>";
+	                        }else{
+	                            return "<span class='glyphicon glyphicon-remove'></span>";
+	                        }
+	                    }
+	                },
+	                {
+	                    field: "PolicyId",
+	                    title: "操作",
+	                    align: "center",
+	                    valign: "middle",
+	                    formatter: function(value,data) {
+	                    	if(data.Status<'7'){
+	                    		if(data.Status=='1'||data.Status=='2'){
+	                    			return "<button class='glyphicon glyphicon-edit opeicon' data-operation='editusers' data-value='" + value + "' title='修改'></button><button class='glyphicon glyphicon-trash opeicon' data-operation='deleteusers' data-value='" + value + "' title='删除'></button><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+	                    		}else{
+	                    			return "<button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+	                    		}
+	                    	}else if(data.Status<='19'){
+	                    		if(data.Status=='7'||data.Status=='12'||data.Status=='13'||data.Status=='17'||data.Status=='18'||data.Status=='19'){
+	                    			if(data.IsPolicyele){
+	                    				return "<button class='glyphicon glyphicon-save-file opeicon' data-operation='policyeledetail' data-value='" + value + "' title='回单'></button><button class='glyphicon glyphicon-remove-circle opeicon' data-operation='backusers' data-value='" + value + "' title='退保'></button><button class='glyphicon glyphicon-duplicate opeicon' data-operation='changeusers' data-value='" + value + "' title='变更'></button><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+	                    			}else{
+	                    				return "<button class='glyphicon glyphicon-remove-circle opeicon' data-operation='backusers' data-value='" + value + "' title='退保'></button><button class='glyphicon glyphicon-duplicate opeicon' data-operation='changeusers' data-value='" + value + "' title='变更'></button><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+	                    			}
+	                    		}else{
+	                    			return "<button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+	                    		}
+	                    	}else if(data.Status=='20'){
+	                    		return "<button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'></button>"
+	                    	}
+	                    }
+	                }
+	            ],
+	
+	            onPageChange: function(size, number) {
+	            },
+	            formatNoMatches: function() {
+	                return '没有相关数据哦！';
+	            },
+	
+	            onLoadSuccess: function() {
+	                //修改按钮
+	                $("button[data-operation='editusers']").click(function() {
+	                    var id = $(this).attr("data-value");
+	                    var addDialog = new BootstrapDialog({
+	                        title: "修改",
+	                        closable: false,
+	                        message: function(dialog) {
+	                            var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;"></div>');
+	                            var pageToLoad = dialog.getData('pageToLoad');
+	                            $message.load(pageToLoad);
+	                            return $message;
+	                        },
+	                        data: {
+	                            'pageToLoad': '@Url.Action("Edit")' + '/' + id
+	                        },
+	                        buttons: [{
+	                            icon: "glyphicon glyphicon-plus",
+	                            label: "保存",
+	                            action: function(dialogItself) {
+	                                console.log("保存");
+	                                $("#PolicyEdit").ajaxSubmit({
+	                                    url: "@Url.Action("edit", "policy")",
+	                                    type: "post",
+	                                    success: function (data) {
+	                                        if(data.Status == 1) {
+	                                            BootstrapDialog.show({
+	                                                message: data.Message,
+	                                                buttons: [{
+	                                                    icon: "glyphicon glyphicon-ok",
+	                                                    label: "确定",
+	                                                    action: function(dialogItself) {
+	                                                        $('#CPolicy').bootstrapTable("refresh");
+	                                                        PolicyStatusAjax();
+	                                                        dialogItself.close();
+	                                                        addDialog.close();
+	                                                        // 账号余额
+															var deposithead=$.ajax({url:"/ReCharge/GetReCharge",type:"POST",async:false});
+															$("#deposithead").html(deposithead.responseText);
+	                                                    }
+	                                                }]
+	
+	                                            });
+	                                        } else BootstrapDialog.alert(data.Message);
+	                                    },
+	                                    error: function (aa) {
+	                                        alert(aa);
+	                                    }
+	                                });
+	                            }
+	                        }, {
+	                            icon: "glyphicon glyphicon-remove",
+	                            label: "取消",
+	                            action: function(dialogItself) {
+	
+	                                dialogItself.close();
+	                            }
+	                        }]
+	                    });
+	                    addDialog.open();
+	                });
+	                //删除按钮
+	                $("button[data-operation='deleteusers']").click(function() {
+	                    var id = $(this).attr("data-value");
+	                    BootstrapDialog.confirm("你确定要删除" + $(this).parent().parent().find("td").eq(2).text() + "吗？", function(result) {
+	                        if(result) {
+	                            $.post('@Url.Action("delete")', {id: id}, function(data) {
+	                                if(data.Status == 1) {
+	                                    BootstrapDialog.show({
+	                                        message: "删除成功",
+	                                        buttons: [{
+	                                            icon: "glyphicon glyphicon-ok",
+	                                            label: "确定",
+	                                            action: function(dialogItself) {
+	                                                $('#CPolicy').bootstrapTable("refresh");
+	                                                PolicyStatusAjax();
+	                                                dialogItself.close();
+	                                            }
+	                                        }]
+	                                    });
+	                                }
+	                            });
+	                        }
+	                    });
+	                });
+	                //退保按钮
+	                $("button[data-operation='backusers']").click(function() {
+	                    var id = $(this).attr("data-value");
+	                    BootstrapDialog.show({
+							title:"退保申请",
+							message: $('<textarea rows="5" name="BackReason" id="BackReason" class="BackReason"></textarea>'),
+							buttons: [{
+								icon: "glyphicon glyphicon-ok",
+								label: "申请",
+								action: function(dialogItself) {
+									var reason=$("#BackReason").val();
+									$.post('@Url.Action("PolicyWaitBack")', {id: id, BackReason: reason}, function(data) {
+										/*console.log(id);
+										console.log(reason);
+										console.log(data.Status);*/
+										if(data.Status == 1) {
+											BootstrapDialog.show({
+												message: data.Message,
+												buttons: [{
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogRef) {
+														$('#CPolicy').bootstrapTable("refresh");
+														PolicyStatusAjax();
+														dialogRef.close();
+														dialogItself.close();
+													}
+												}]
+											});
+										} else BootstrapDialog.alert(data.Message);
+									}, "json");
+								}
+							},{
+								icon: "glyphicon glyphicon-remove",
+								label: "取消",
+								action: function(dialogItself) {
+	                                $('#CPolicy').bootstrapTable("refresh");
+	                                PolicyStatusAjax();
+	                                dialogItself.close();
+	                            }
+							}]
+						});
+	                });
+	                //变更按钮
+	                $("button[data-operation='changeusers']").click(function() {
+	                    var id = $(this).attr("data-value");
+	                    BootstrapDialog.show({
+							title:"变更申请",
+							message: $('<p>变更原因<p><textarea rows="5" name="ChangeReason" id="ChangeReason" class="ChangeReason"></textarea><p>变更内容<p><textarea rows="5" name="ChangeText" id="ChangeText" class="ChangeText"></textarea><div><h5>提示：</h5><p>可更改的内容为：商户名称、被保险人（和身份证号一起）、手机号码、承保内容、投保地址。</p></div>'),
+							buttons: [{
+								icon: "glyphicon glyphicon-ok",
+								label: "申请",
+								action: function(dialogItself) {
+									var reason=$("#ChangeReason").val();
+									var changetext=$("#ChangeText").val();
+									$.post('@Url.Action("PolicyWaitChange")', {id: id, ChangeReason: reason, ChangeText:changetext}, function(data) {
+										/*console.log(id);
+										console.log(reason);
+										console.log(data.Status);*/
+										if(data.Status == 1) {
+											BootstrapDialog.show({
+												message: data.Message,
+												buttons: [{
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogRef) {
+														$('#CPolicy').bootstrapTable("refresh");
+														PolicyStatusAjax();
+														dialogRef.close();
+														dialogItself.close();
+													}
+												}]
+											});
+										} else BootstrapDialog.alert(data.Message);
+									}, "json");
+								}
+							},{
+								icon: "glyphicon glyphicon-remove",
+								label: "取消",
+								action: function(dialogItself) {
+	                                $('#CPolicy').bootstrapTable("refresh");
+	                                PolicyStatusAjax();
+	                                dialogItself.close();
+	                            }
+							}]
+						});
+	                });
+	                //详情按钮
+	                $("button[data-operation='detailusers']").click(function() {
+	                    var id = $(this).attr("data-value");
+	                    var addDialog = new BootstrapDialog({
+	                        title: "保单详情",
+	                        message: function(dialog) {
+	                            console.log(dialog);
+	                            var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;"></div>');
+	                            var pageToLoad = dialog.getData('pageToLoad');
+	                            $message.load(pageToLoad);
+	                            return $message;
+	                        },
+	                        data: {
+	                            'pageToLoad': '@Url.Action("Detail")'+'/'+ id
+	                        },
+	                        buttons: [{
+	                            icon: "glyphicon glyphicon-remove",
+	                            label: "关闭",
+	                            action: function(dialogItself) {
+	                                PolicyStatusAjax();
+	                                dialogItself.close();
+	                                addDialog.close();
+	                            }
+	                        }]
+	                    });
+	                    addDialog.open();
+	                });
+	                //回单按钮
+	                $("button[data-operation='policyeledetail']").click(function() {
+	                    var id = $(this).attr("data-value");
+	                    var addDialog = new BootstrapDialog({
+	                        title: "回单",
+	                        message: function(dialog) {
+	                            console.log(dialog);
+	                            var $message = $('<div></div>');
+	                            var pageToLoad = dialog.getData('pageToLoad');
+	                            $message.load(pageToLoad);
+	                            return $message;
+	                        },
+	                        data: {
+	                            'pageToLoad': '@Url.Action("PolicyeleDetail")'+'/'+ id
+	                        },
+	                        buttons: [{
+	                            label: "关闭",
+	                            action: function(dialogItself) {
+	                                dialogItself.close();
+	                                addDialog.close();
+	                            }
+	                        }]
+	                    });
+	                    addDialog.open();
+	                });
+	            }
+	        });
+	        $(window).resize(function() {
+	            $('#CPolicy').bootstrapTable('resetView');
+	        });
+	        //添加按钮
+	        $("#CPolicy_Add").click(function() {
+	            var addDialog = new BootstrapDialog({
+	                title: "新增保单",
+	                closable: false,
+	                message: function(dialog) {
+	
+	                    var $message = $('<div><img src="/images/loading.gif" style="margin: 0 auto; display: block;" /></div>');
+	                    var pageToLoad = dialog.getData('pageToLoad');
+	                    $message.load(pageToLoad);
+	
+	                    return $message;
+	                },
+	                data: {
+	                    'pageToLoad': '@Url.Action("Add")'
+	                },
+	                buttons: [{
+	                    icon: "glyphicon glyphicon-plus",
+	                    label: "提交保单",
+	                    action: function (dialogItself) {
+	                        $("#PolicyAdd").ajaxSubmit({
+	                            url: "@Url.Action("add", "policy")",
+	                            type: "post",
+	                            success: function (data) {
+	                                console.log(data);
+	                                if(data.Status == 1) {
+	                                    BootstrapDialog.show({
+	                                        message: data.Message,
+	                                        buttons: [{
+	                                            icon: "glyphicon glyphicon-ok",
+	                                            label: "确定",
+	                                            action: function(dialogItself) {
+	                                                $('#CPolicy').bootstrapTable("refresh");
+	                                                PolicyStatusAjax()
+	                                                dialogItself.close();
+	                                                addDialog.close();
+	                                                // 账号余额
+													var deposithead=$.ajax({url:"/ReCharge/GetReCharge",type:"POST",async:false});
+													$("#deposithead").html(deposithead.responseText);
+	                                            }
+	                                        }]
+	                                    });
+	                                } else BootstrapDialog.alert(data.Message);
+	                            },
+	                            error: function (aa) {
+	                                alert(aa);
+	                            }
+	                        });
+	                    }
+	                },{
+	                    icon: "glyphicon glyphicon-remove",
+	                    label: "关闭",
+	                    action: function (dialogItself) {
+	                        dialogItself.close();
+	                        addDialog.close();
+	                    }
+	                }]
+	            });
+	            addDialog.open();
+	        });
+	    //添加按钮结束
+	    });
+	
+	    Date.prototype.toLocaleString = function() {
+		return this.getFullYear() + "-" + (this.getMonth() + 1) + "-" + this.getDate() + " " + this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds();
+	    };
+	
+	    function getIdSelections() {
+	        return $.map($('#CPolicy').bootstrapTable('getSelections'), function(row) {
+	            return row.PolicyId
+	        });
+	    }
+	    //得到查询的参数
+	    queryParams = function(params) {
+	        var temp = { //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+	            //limit: params.limit,   //页面大小
+	            limit: params.pageSize, //页面大小
+	            offset: params.pageNumber, //页码
+	        };
+	        return temp;
+	    };
+	
+	    function responseHandler(res) {
+	        $.each(res.rows, function(i, row) {
+	            row.state = $.inArray(row.id, selections) !== -1;
+	        });
+	        return res;
+	    }
+	    function detailFormatter(index, row) {
+	        var html = [];
+	        $.each(row, function(key, value) {
+	            html.push('<p><b>' + key + ':</b> ' + value + '</p>');
+	        });
+	        return html.join('');
+	    }
+	    $(document).ready(function(){
+	        $(".PolicyStatus ul li").on("click",function(){
+	            $(this).addClass("active").siblings().removeClass("active");
+	            if($(".PolicyStatus ul li.active").hasClass("List")){
+	                $('#CPolicy').bootstrapTable('refresh',{url:'/Policy/List'});
+	            }
+	            if($(".PolicyStatus ul li.active").hasClass("AllWaitPolicy")){
+	                $('#CPolicy').bootstrapTable('refresh',{url:'/Policy/List_AllWaitPolicy'});
+	            }
+	            if($(".PolicyStatus ul li.active").hasClass("AllPolicyErr")){
+	                $('#CPolicy').bootstrapTable('refresh',{url:'/Policy/List_AllPolicyErr'});
+	            }
+	            /*if($(".PolicyStatus ul li.active").hasClass("PolicyWaitPay")){
+	                $('#CPolicy').bootstrapTable('refresh',{url:'/Policy/List_PolicyWaitPay'});
+	            }
+	            if($(".PolicyStatus ul li.active").hasClass("PolicyPayed")){
+	                $('#CPolicy').bootstrapTable('refresh',{url:'/Policy/List_PolicyPayed'});
+	            }*/
+	            if($(".PolicyStatus ul li.active").hasClass("AllPolicyed")){
+	                $('#CPolicy').bootstrapTable('refresh',{url:'/Policy/List_AllPolicyed'});
+	            }
+	            if($(".PolicyStatus ul li.active").hasClass("AllPolicyWaitBack")){
+	                $('#CPolicy').bootstrapTable('refresh',{url:'/Policy/List_AllPolicyWaitBack'});
+	            }
+	            if($(".PolicyStatus ul li.active").hasClass("AllPolicyBackErr")){
+	                $('#CPolicy').bootstrapTable('refresh',{url:'/Policy/List_AllPolicyBackErr'});
+	            }
+	            if($(".PolicyStatus ul li.active").hasClass("PolicyBack")){
+	                $('#CPolicy').bootstrapTable('refresh',{url:'/Policy/List_PolicyBack'});
+	            }
+	            if($(".PolicyStatus ul li.active").hasClass("AllPolicyWaitChange")){
+	                $('#CPolicy').bootstrapTable('refresh',{url:'/Policy/List_AllPolicyWaitChange'});
+	            }
+	            if($(".PolicyStatus ul li.active").hasClass("APolicyChangedErr")){
+	                $('#CPolicy').bootstrapTable('refresh',{url:'/Policy/List_APolicyChangedErr'});
+	            }
+	            if($(".PolicyStatus ul li.active").hasClass("PolicyChanged")){
+	                $('#CPolicy').bootstrapTable('refresh',{url:'/Policy/List_PolicyChanged'});
+	            }
+	            if($(".PolicyStatus ul li.active").hasClass("PolicyForbid")){
+	                $('#CPolicy').bootstrapTable('refresh',{url:'/Policy/List_PolicyForbid'});
+	            }
+	        });
+	    });
+		</script>
+
+

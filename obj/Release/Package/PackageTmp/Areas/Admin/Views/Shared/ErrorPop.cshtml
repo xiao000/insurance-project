@@ -1,0 +1,27 @@
+﻿@model Bx_Common.Prompt
+@{
+    Layout = null;
+}
+@*导入的是一个错误提示,要设计成标题和内容的错误框,
+
+    @Model.Title 这个放在标题里
+    @Model.Message   这个是错误提示内容
+
+*@
+<div>
+	<div class="error_title">
+		@Model.Title
+	</div>
+	<div class="error_content">
+		@Model.Message
+	</div>
+</div>
+<script type=text/javascript>
+$(document).ready(function(){
+	$(".modal-footer").css("display","none");
+});
+</script>
+
+
+
+

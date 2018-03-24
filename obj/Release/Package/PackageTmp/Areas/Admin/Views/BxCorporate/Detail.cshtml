@@ -1,0 +1,30 @@
+﻿@model Bx_Core.BxCorporate
+
+@{
+    ViewBag.Title = "保险公司详情";
+    Layout=null;
+}
+
+		<div class="wrapper">
+			<div class="register-box">
+				<div class="register-content">
+					<div class="form-group">
+						<label>@Html.LabelFor(m=>m.BxCorId)</label>
+						@Html.TextBoxFor(m=>m.BxCorId, new { disabled = "false" })
+					</div>					
+					<div class="form-group">
+						<label>@Html.LabelFor(m=>m.CreateTime)</label>
+						@Html.TextBoxFor(m=>m.CreateTime, new { disabled = "false" })
+					</div>
+					<div class="form-group">
+						<label>@Html.LabelFor(m=>m.BxCorporateName)</label>
+						@Html.TextBoxFor(m=>m.BxCorporateName, new { disabled = "false" })
+					</div>
+					<div class="form-group">
+						<label>@Html.LabelFor(m=>m.BxCorRemark)</label>
+						@Html.TextAreaFor(m=>m.BxCorRemark, new { disabled = "false" })
+					</div>
+				</div>
+			</div>
+		</div>
+		

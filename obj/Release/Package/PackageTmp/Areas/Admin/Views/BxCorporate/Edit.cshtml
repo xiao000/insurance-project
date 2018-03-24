@@ -1,0 +1,80 @@
+﻿@model Bx_Core.BxCorporate
+
+@{
+    ViewBag.Title = "修改保险公司名称";
+    Layout = null;
+}
+
+		<script src="~/Scripts/jquery.validate.js"></script>
+		<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+		<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+		<script type="text/javascript">		
+			function OnSuccess(data) {
+				if(data.Status) {
+					var BootstrapDialog1=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+								window.location.href = data.Url;
+							}
+						}]
+					});
+					BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+					BootstrapDialog1.open();					
+				} else {
+					var BootstrapDialog2=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+					});
+					BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+					BootstrapDialog2.open();					
+				}
+			}
+
+			function OnFailure() {
+				var BootstrapDialog0=new BootstrapDialog({
+					title:"提示",
+					message: "Connection error",
+					buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+				});
+				BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+				BootstrapDialog0.open();
+			}
+    </script>
+
+		<div class="wrapper">
+			<div class="register-box">
+				<div class="register-content">
+					@using (Ajax.BeginForm("edit", "BxCorporate", new AjaxOptions { Url = Url.Action("edit", "BxCorporate", new { area = "admin" }), OnSuccess = "OnSuccess", OnFailure = "OnFailure" }, new { id="BxCorEdit"})){					
+					<div class="form-group">
+						<label>公司名称</label>
+						@Html.EditorFor(m=>m.BxCorporateName) @Html.ValidationMessageFor(m=>m.BxCorporateName)
+					</div>
+					<div class="form-group">
+						<label>备注</label>@Html.EditorFor(m=>m.BxCorRemark) @Html.ValidationMessageFor(m=>m.BxCorRemark)
+					</div>
+					}
+				</div>
+			</div>
+		</div>
+		
+

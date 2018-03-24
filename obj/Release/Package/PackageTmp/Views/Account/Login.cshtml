@@ -1,0 +1,131 @@
+﻿@model Bx_Web.Models.LoginViewModel
+
+@{
+    ViewBag.Title = "Login";
+    Layout = null;
+}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>保单管理系统-登录界面</title>
+    <link rel="stylesheet" href="~/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="~/bootstrap/css/bootstrap-dialog.css" />
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="apple-touch-icon" sizes="76x76" href="">
+    <link rel="icon" type="image/png" sizes="96x96" href="">
+    <script src="~/js/jquery-2.1.0.min.js"></script>
+    <script src="~/bootstrap/js/bootstrap.js"></script>
+    <script src="~/bootstrap/js/bootstrap-dialog.js"></script>
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript">		
+			function OnSuccess(data) {
+				if(data.Status) {
+					var BootstrapDialog1=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+								window.location.href = data.Url;
+							}
+						}]
+						/*action: function(dialogItself){
+							setTimeout(function(){
+		                        BootstrapDialog1.close();
+		                    }, 5000);
+						}*/
+					});
+					BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+					BootstrapDialog1.open();
+					
+				} else {
+					var BootstrapDialog2=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+								$("#verificationcode").attr("src", "@Url.Action("VerificationCode")?" + new Date());
+							}
+						}]
+					});
+					BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+					BootstrapDialog2.open();					
+				}
+			}
+
+			function OnFailure() {
+				var BootstrapDialog0=new BootstrapDialog({
+					title:"提示",
+					message: "Connection error",
+					buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+				});
+				BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+				BootstrapDialog0.open();
+			}
+    </script>
+</head>
+<body>
+    <div class="wrapperbg">
+        <div class="login-box">
+            <div class="login-top"></div>
+            <div class="login-content"><!--@Html.ActionLink("请注册","register")-->
+                <span>没有账号？<a href="#" id="registerpop" type="button" title="<h5>用户注册</h5>" data-container="body" data-toggle="popover" data-content="<p class='text-center'>暂未开放注册</p><p class='text-center'>需要注册请联系管理员</p><p class='text-center'><img src='/images/gzt.jpg' width='50%' /></p><p class='text-center'>手机号码:18145856110</p>">请注册</a></span>
+	<div class="clearfix"></div>
+                @using(Ajax.BeginForm(new AjaxOptions{Url=Url.Action("Login"),OnSuccess="OnSuccess",OnFailure="OnFailure"}))
+                {
+                    @Html.AntiForgeryToken();
+	    <div class="form-group">
+                    @Html.TextBoxFor(m => m.username, new { placeholder = "用户名" })
+                    @Html.ValidationMessageFor(m => m.username)
+	    </div>
+
+	    <div class="form-group">     
+                    @Html.PasswordFor(m => m.password, new { placeholder = "密码" })
+                    @Html.ValidationMessageFor(m => m.password)
+	    </div>
+                    
+	    <div class="form-group">
+                    @Html.TextBoxFor(m => m.validatecode, new { placeholder = "验证码" })  <img id="verificationcode" title="点击刷新" src="@Url.Action("VerificationCode")" style="cursor:pointer" />
+                    @Html.ValidationMessageFor(m => m.validatecode)
+	    </div>
+
+                    <!--<div class="form-group">
+                        <input type="checkbox" id="rememberpwd" />
+                        <label for="rememberpwd">记住用户名和密码<span class="forgetpwd"><a href="#">忘记密码</a></span></label>
+                    </div>-->
+	    <input type="submit" value="登录" class="btn btnsty btn-login" />
+                }
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+    $("#verificationcode").click(function () {
+        $("#verificationcode").attr("src", "@Url.Action("VerificationCode")?" + new Date());
+    })
+    
+    $(function () { 
+    	$("#registerpop").popover({
+    		html : true 
+    	});
+    });
+    </script>
+</body>
+</html>

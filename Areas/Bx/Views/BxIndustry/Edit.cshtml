@@ -1,0 +1,81 @@
+﻿@model Bx_Core.BxIndustry
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = null;
+}
+<script src="~/Scripts/jquery.validate.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+<script type="text/javascript">		
+			function OnSuccess(data) {
+				if(data.Status) {
+					var BootstrapDialog1=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+								window.location.href = data.Url;
+							}
+						}]
+					});
+					BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+					BootstrapDialog1.open();					
+				} else {
+					var BootstrapDialog2=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+								$("#verificationcode").attr("src", "@Url.Action("VerificationCode")?" + new Date());
+							}
+						}]
+					});
+					BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+					BootstrapDialog2.open();					
+				}
+			}
+
+			function OnFailure() {
+				var BootstrapDialog0=new BootstrapDialog({
+					title:"提示",
+					message: "Connection error",
+					buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+				});
+				BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+				BootstrapDialog0.open();
+			}
+    </script>
+
+<div class="wrapper">
+	<div class="register-box">
+		<div class="register-content">
+			@using (Ajax.BeginForm("edit", "BxIndustry", new AjaxOptions { Url = Url.Action("edit", "BxIndustry", new { area="Bx"}), OnSuccess = "OnSuccess", OnFailure = "OnFailure" }, new { id="BxIndEdit"}))
+            {
+                <div class="form-group">
+                    @Html.LabelFor(m=>m.BxIndustryName,new{style="width:100px;"})@Html.TextBoxFor(m => m.BxIndustryName, new { placeholder = "2-30个英文数字" })
+                    @Html.ValidationMessageFor(m => m.BxIndustryName)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m=>m.BxRemark,new{style="width:100px;"})@Html.TextAreaFor(m => m.BxRemark)
+                    @Html.ValidationMessageFor(m => m.BxRemark)
+                </div>
+            }
+		</div>
+	</div>
+</div>
+

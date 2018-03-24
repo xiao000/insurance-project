@@ -1,0 +1,83 @@
+﻿@model Bx_Core.CustomerServicer
+
+@{
+    ViewBag.Title = "修改客服";
+    Layout = null;
+}
+<script src="~/Scripts/jquery.validate.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+<script type="text/javascript">		
+			function OnSuccess(data) {
+				if(data.Status) {
+					var BootstrapDialog1=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+								window.location.href = data.Url;
+							}
+						}]
+					});
+					BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+					BootstrapDialog1.open();					
+				} else {
+					var BootstrapDialog2=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+					});
+					BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+					BootstrapDialog2.open();					
+				}
+			}
+
+			function OnFailure() {
+				var BootstrapDialog0=new BootstrapDialog({
+					title:"提示",
+					message: "Connection error",
+					buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+				});
+				BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+				BootstrapDialog0.open();
+			}
+    </script>
+
+<div class="ins_rightmian ins_fullcontent" id="ins_rightmain">
+    <div class="ins_rightcontent">     
+        <div class="content_main">
+            <div class="content_maintable">
+                <div id="content-body">
+                    @using (Ajax.BeginForm("Edit", "CustomerService",new AjaxOptions { Url = Url.Action("Edit", "CustomerService", new {area="admin" }), OnSuccess = "OnSuccess", OnFailure = "OnFailure" }, new { id="Serviceedit"}))
+                    {
+
+                        <ul class="users_info">
+                            <li class="noedit"><label>用户账号</label>@Html.TextBoxFor(m => m.username, new { disabled = "false" }) </li>
+                            <li>
+                                <label>区域</label>@Html.EditorFor(m => m.Area)
+                                @Html.ValidationMessageFor(m => m.Area)
+                            </li>
+                        </ul>
+                    }                   
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

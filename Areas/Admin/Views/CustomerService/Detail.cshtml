@@ -1,0 +1,34 @@
+﻿@model Bx_Core.CustomerServicer
+
+@{
+    ViewBag.Title = "客服管理详情";
+    Layout = null;
+}
+<div class="ins_rightmian ins_fullcontent" id="ins_rightmain">
+    <div class="ins_rightcontent">
+        <div class="content_main">
+            <div class="content_maintable">
+                <div id="content-body">                   
+                        <ul class="users_info">
+                            <li><label>登录账号</label>@Html.TextBoxFor(m => m.username, new { disabled = "false" }) </li>
+                            <li>
+                                <label>区域</label>@Html.TextBoxFor(m => m.Area, new { disabled = "false" })                                
+                            </li>
+                            <li>
+                                <label>最后登录IP</label>@Html.TextBoxFor(m => m.LoginIP, new { disabled = "false" })
+                            </li>
+                            <li>
+                                <label>登录时间</label>@Html.TextBoxFor(m => m.LoginTime, new { disabled = "false" })
+                            </li>
+                            <li>
+                                <label>登录次数</label>@Html.TextBoxFor(m => m.LoginCount, new { disabled = "false" })
+                            </li>
+                            <li>
+                                <label>注册时间</label>@Html.TextBoxFor(m => m.CreateTime, new { disabled = "false" })
+                            </li>
+                        </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

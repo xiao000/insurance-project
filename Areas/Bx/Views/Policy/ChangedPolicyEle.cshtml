@@ -1,0 +1,289 @@
+﻿@using Bx_Core;
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ChangedPolicyEle</title>
+    <link type="text/css" rel="stylesheet" href="~/css/common.css" />
+	<link type="text/css" rel="stylesheet" href="~/css/index.css" />
+	<style type="text/css">
+	    .modal-dialog{
+	        width: 1000px;
+	    }
+	    .imgBtn{
+	        position: absolute;
+	        top: 6px;
+	        right: 45px;
+	        display: none;
+	        z-index: 10;
+	    }
+	    .up-section:hover .imgBtn{
+	        display: block;
+	    }
+	    .maskBox{
+	        position: absolute;
+	        z-index: 100;
+	        top:-41px;
+	        bottom: 0;
+	        left: 0;
+	        right: 0;
+	        width: 100%;
+	        height: 100%;
+	        background: rgba(0,0,0,0.5);
+	        display: none;
+	    }
+	    .maskBox img{
+	        width: 80%;
+	        margin: 80px auto;
+	        display: block;
+	    }
+	    #remarkbox{
+	        width: 100%;
+	        height: 100px;
+	        margin: 10px 0;
+	    }
+	    .text{
+	        margin: 30px 0;
+	        font-size: 14px;
+	        color: red;
+	    }
+	    .upimg-div .up-section {
+		    width: 192px;
+		    height: 182px;
+		    border: 1px solid #e0e0e0;
+		}
+		.up-section:hover {
+		    border: 1px solid #e0e0e0;
+		}
+		.z_photo .up-section {
+		    position: relative;
+		    margin: 12px;
+	   	}
+		.z_photo .z_file {
+		    position: relative;
+		    margin: 12px;
+	   	}
+		.ChangedPolicyEle_add .title{
+			margin-bottom: 26px;
+			font-size: 18px;
+		}
+		.picBox{
+			margin-bottom: 40px;
+		}
+	</style> 
+	<script type="text/javascript">		
+	    function OnSuccess(data) {
+	        if(data.Status) {
+	            var BootstrapDialog1=new BootstrapDialog({
+	                title:"提示",
+	                message: data.Message,
+	                buttons: [{
+	                    icon: "glyphicon glyphicon-remove",
+	                    label: "关闭",
+	                    action: function(dialogItself) {
+	                        dialogItself.close();
+	                        window.location.href = data.Url;
+	                    }
+	                }]
+	            });
+	            BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+	            BootstrapDialog1.open();					
+	        } else {
+	            var BootstrapDialog2=new BootstrapDialog({
+	                title:"提示",
+	                message: data.Message,
+	                buttons: [{
+	                    icon: "glyphicon glyphicon-remove",
+	                    label: "关闭",
+	                    cssClass:"btn-danger",
+	                    action: function(dialogItself) {
+	                        dialogItself.close();
+	                    }
+	                }]
+	            });
+	            BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+	            BootstrapDialog2.open();					
+	        }
+	    }
+	    function OnFailure() {
+	        var BootstrapDialog0=new BootstrapDialog({
+	            title:"提示",
+	            message: "Connection error",
+	            buttons: [{
+	                    icon: "glyphicon glyphicon-remove",
+	                    label: "关闭",
+	                    cssClass:"btn-danger",
+	                    action: function(dialogItself) {
+	                        dialogItself.close();
+	                    }
+	                }]
+	        });
+	        BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+	        BootstrapDialog0.open();
+	    }
+	</script>
+</head>
+<body>
+    <div class="register-content ChangedPolicyEle_add" >
+    @using (Ajax.BeginForm("ChangedPolicyele", "Policy", new AjaxOptions { Url = Url.Action("ChangedPolicyele", "Policy", new { area = "BX" }), OnSuccess = "OnSuccess", OnFailure = "OnFailure" }, new { @id="bxpolicyele"}))  	
+    {
+        if (null != ViewBag.PolicyEleList)
+        {
+            
+        
+	<p class="title">保单回单：</p>
+	<div class="picBox">
+		<div class="img-box full" style="">
+			<section class=" img-section">
+				<div class="z_photo upimg-div clear">
+					<!-- 文件渲染部分 -->
+                    @foreach (PolicyEle item in ViewBag.PolicyEleList as List<PolicyEle>)
+                    {
+                    
+					<section class="up-section fl">
+						<a class="up-img_a" href="@item.FilePathName.Substring(1)" target="view_window">
+                            <img class="up-img" src="@item.FilePathName.Substring(1)">
+						</a>
+					</section>
+                        }
+					<!-- //////////////////// -->
+				</div>
+			</section>
+		</div>
+	</div>
+        }
+	<p class="title">变更保单回单：</p>
+    <div class="picBox_add">
+        <div class="img-box full">
+            <section class="img-section">
+                <div class="z_photo upimg-div clear" >
+                    <section class="file_box ">
+                        <input type="file" name="file" class="PolicyPic file_empty" style="display: none;" value="" accept="application/pdf,image/*"/>
+                    </section>
+                    <section class="z_file fl">
+                        <img src="~/images/a11.png" class="add-img">
+                    </section>
+                </div>
+            </section>
+            <input type="hidden" name="id" value="@ViewBag.Id">
+        </div>
+        <aside class="mask works-mask">
+            <div class="mask-content">
+                <p class="del-p">您确定要删除文件吗？</p>
+                <p class="check-p"><span class="del-com wsdel-ok">确定</span><span class="wsdel-no">取消</span></p>
+            </div>
+        </aside>
+    </div>
+    }
+    </div>
+	<div class="maskBox"></div>
+	
+	<script type="text/javascript">
+	    $(function(){
+	        $('.add-img').click(function(){
+	            $('.file_empty').trigger("click");
+	        });
+	        var z_fileText = '<section class="file_box fl">'
+	                            +'<input type="file" name="file" class="PolicyPic file_empty" style="display: none;" value="" accept="application/pdf,image/*"/>'
+	                        +'</section>';
+	        //
+	        $(document).on('change','.file_box .file_empty',function(e){
+	            var data = $(this).val();
+	            var fileType = data.substr(data.indexOf("."));
+	            console.log('data='+data+';fileType='+fileType);
+	            var name = e.currentTarget.files[0];
+	            var nameURL = window.URL.createObjectURL(name);
+	            console.log('name='+name);
+	            
+	            console.log(window.URL.createObjectURL(name));
+	           // console.log($("#file_empty").files[0].getAsDataURL());
+	            $(this).parent(".file_box").removeClass("file_box").addClass("up-section fl loading");
+	            //$(this).siblings('.add-img').remove();
+	            var $span = $("<span class='up-span'>");
+	                $span.appendTo(".loading");
+	            //删除 
+	            var $img0 = $("<img class='close-upimg'>").on("click",function(event){
+	                    $(".wsdel-ok").attr("px",$(this).parent(".up-section").index());
+	                    //console.log('dd'+$(".wsdel-ok").attr("px"));
+	                    event.preventDefault();
+	                    event.stopPropagation();
+	                    $(".works-mask").show();
+	                    delParent = $(this).parent();
+	            }); 
+	            /////////////////////////////////////////////////////////////////////
+	            
+	            var $imgBtn0 ='<a class="up-img_a" href="'+nameURL+'" target="view_window">'
+	                            +'<img class="imgBtn" src="../../images/a8.png">'
+	                        +'</a>';
+	            $(".loading").append($imgBtn0);
+	            /*
+	            // 放大图
+	            var $imgBtn0 ='<a class="up-img_a" href="'+data+'" target="view_window">'
+	                            +'<img class="imgBtn" src="../../images/a8.png">'
+	                        +'</a>';
+	            $(".loading").append($imgBtn0);
+	            */
+	            /*
+	            $("<img class='imgBtn'>").on("click",function(event){
+	                    var img_src = $(this).siblings(".up-img").attr('src');
+	                    $(".maskBox").css("height",$(".modal-dialog").height());
+	                    $(".maskBox").show().append('<img src="'+img_src+'">');
+	                }); 
+	            $imgBtn0.attr("src","../../images/a8.png").appendTo($section);
+	            */
+	            
+	            /////////////////////////////////////////////////////////////////////
+	            $img0.attr("src","../../../images/a7.png").appendTo(".loading");
+	            
+	            //pdf文件 
+	            //var $pdf0 = '<img class="up-img" src="'+data+'" style="width: 190px; height: 180px;">';
+	            if(fileType=='.pdf' || fileType=='.PDF'){
+	                var $pdf0 = '<img class="up-img" src="../../images/pdflogo.jpg" style="width: 190px; height: 180px;">';
+	            }else{
+	                var $pdf0 = '<img class="up-img" src="'+nameURL+'" style="width: 190px; height: 180px;">';
+	            }
+	            
+	            $(".loading").append($pdf0);
+	
+	            /*
+	            var $p = $("<p class='img-name-p'>");
+	                $p.html(fileList[i].name).appendTo(".loading");
+	            var $input = $("<input id='taglocation' name='taglocation' value='' type='hidden'>");
+	                $input.appendTo(".loading");
+	            var $input2 = $("<input id='tags' name='tags' value='' type='hidden'/>");
+	                $input2.appendTo(".loading");
+	            */
+	            
+	            $(this).parent(".fl").removeClass("loading");
+	            $(this).removeClass('file_empty');
+	            if($('.z_photo .file_box').length==0){
+	                $('.z_file').before(z_fileText);
+	            }else{
+	                $(".file_box").remove();
+	                $('.z_file').before(z_fileText);
+	            }
+	        });
+	        $(".z_photo").delegate(".close-upimg","click",function(){
+	            $(".wsdel-ok").attr("px",$(this).parent(".up-section").index());
+	            console.log('dd'+$(".wsdel-ok").attr("px"));
+	            alert($(".wsdel-ok").attr("px"));
+	            $(".works-mask").show();
+	            delParent = $(this).parent();
+	        }); 
+	        $(".wsdel-ok").click(function(){ 
+	            var num = $(this).attr('px');
+	            $('.picBox_add').find(".up-section").eq(num).remove();
+	            $(".works-mask").hide();
+	        }); 
+	        $(".wsdel-no").click(function(){
+	            $(".works-mask").hide();
+	        }); 
+	    });
+	</script>
+</body>
+</html>

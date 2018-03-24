@@ -1,0 +1,177 @@
+﻿/* bx/product/list */
+
+
+
+
+
+/* #l_insuredAmount_tr .l_insuredAmount_box{
+    width: 968px !important;
+    float: left;
+    overflow: hidden;
+} */
+.table{
+    width: 908px;
+    overflow: hidden;
+}
+.table .term{
+    border-top: 1px rgb(221, 221, 221) solid;
+    overflow: hidden;
+}
+.table .term .title{
+    width: 56px;
+    height: 26px;
+    line-height: 26px;
+    margin: 8px;
+    font-size: 14px;
+    color: #666;
+    float: left;
+}
+.table .term .inputBox{
+    width: 480px;
+    /* height: 26px; */
+    line-height: 26px;
+    margin: 8px 0 8px 16px;
+    float: left;
+    overflow: hidden;
+}
+.table .term .inputBox_r{
+    width: 245px;
+    /* height: 26px; */
+    line-height: 26px;
+    margin: 8px 0 8px 16px;
+    float: left;
+    overflow: hidden;
+}
+.table .term .l_insuredAmount_box{
+    overflow: hidden;
+    display: none;
+}
+.table .term .insuredAmount_no{
+    display: block;
+}
+.table .term .inputBox_r input{
+    width: 220px;
+    height: 24px;
+    line-height: 24px;
+    float: left;
+}
+.table .term .inputBox input{
+    width: 220px;
+    height: 24px;
+    line-height: 24px;
+    /* margin: 0 8px; */
+}
+.l_insuredAmount_box .inputBox{
+    width: 330px !important;
+}
+.l_insuredAmount_box .inputBox_r{
+    width: 400px !important;
+}
+.l_insuredAmount_box .inputBox_r .len{
+    width: 120px !important;
+    margin-top: 0px;
+}
+.l_insuredAmount_box .inputBox_r span{
+    float: left;
+    margin: 0 10px;
+}
+.l_insuredAmount_box .inputBox input, .l_insuredAmount_box .inputBox_r input{
+    width: 80px !important;
+}.l_insuredAmount_box .inputBox_r input[type="checkbox"]{
+    width: 20px !important;
+    height: 20px !important;
+    margin-top: 3px;
+}
+.field-validation-error{
+    font-size: 12px !important;
+    color: #aa1111 !important;
+}
+.table .term .l_textarea{
+    width: 810px;
+    margin: 16px 0 16px 16px;
+}
+.table .term .glyphicon{
+    left: 228px;
+    top: 8px;
+    cursor: pointer;
+}
+.bootstrap-select:not([class*="col-"]):not([class*="form-control"]):not(.input-group-btn){
+    position: absolute;
+}
+.selectpicker_term .inputBox, .selectpicker_term .inputBox_r{
+    margin-left: 16px;
+    height: 28px;
+}
+.btn-group input{
+    margin-bottom: 8px;
+}
+.cke_chrome{
+    float: left;
+    width: 810px !important;
+    margin: 16px 0 16px 16px !important;
+}
+.plusBtn, .minusBtn{
+    color: #00a5a5;
+    top: 4px !important;
+    left: 230px !important;
+}
+
+/* 产品详情 */
+
+.bxReason{
+    width: 810px;
+    margin: 16px 0 16px 0px;
+    position: relative;
+    left: 16px;
+    display: block;
+    /* background: #aaa; */
+    overflow: hidden;
+    border: 1px #aaa solid;
+}
+.bxReason li{
+    overflow: hidden;
+    text-align: center;
+    width: 810px;
+    height: 30px;
+    display: block;
+    line-height: 30px;
+    border-bottom: 1px #aaa solid;
+}
+.bxReason li .time{
+    width: 180px;
+    float: left;
+}
+.bxReason li .reason{
+    width: 420px;
+    float: left;
+}
+.bxReason li .operator{
+    width: 150px;
+    float: left;
+}
+
+
+
+/*....................liuxiangyan........................*/
+.poladd .field-validation-error{
+	position: absolute;
+	left: 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

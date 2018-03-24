@@ -1,0 +1,447 @@
+﻿@model Bx_Core.BxAccount
+
+@{
+    ViewBag.Title = "保险公司";
+    Layout = "~/Areas/admin/Views/Shared/_Admin.cshtml";
+}
+
+		<!--ins_fullcontent start-->
+		<div class="ins_fullcontent" id="ins_rightmain">
+			<div class="ins_rightcontent">
+				<div class="content_timetoggle content_toptitle">
+					保险公司信息
+				</div>
+				<div class="content_main">
+					<div class="content_maintable">
+						<div id="bxaccount_toolbar" class="btn-group">
+							<button id="bxaccount_add" type="button" class="commonbtn smallbtn">新增</button>
+						</div>
+						<table id="bx_account">
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--ins_fullcontent end-->
+
+		<script type="text/javascript">
+			$(function() {
+				//主要内容高度
+				$head=$("#ins_header").height()+30;
+				$rightmain=$(window).height()-$head-30;
+				$("#ins_rightmain").css("min-height",$rightmain+"px");
+				$tablebox=$(".content_timetoggle").height();
+				$btable=$rightmain-$tablebox;
+				$(".bootstrap-table").css("min-height",$btable+"px");
+				
+				$(window).resize(function(){
+					//主要内容高度
+					$head=$("#ins_header").height()+30;
+					$rightmain=$(window).height()-$head-30;
+					$("#ins_rightmain").css("min-height",$rightmain+"px");
+					$tablebox=$(".content_timetoggle").height();
+					$btable=$rightmain-$tablebox;
+					$(".bootstrap-table").css("min-height",$btable+"px");
+				});
+				
+				$('#bx_account').bootstrapTable({
+					url: '/Admin/BxAccount/List',
+					method: 'post', //请求方式（*）
+					toolbar: '#bxaccount_toolbar', //工具按钮用哪个容器
+					striped: true, //是否显示行间隔色
+					cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+					pagination: true, //是否显示分页（*）
+					sidePagination: "server", //分页方式：client客户端分页，server服务端分页（*）
+					pageNumber: 1, //初始化加载第一页，默认第一页
+					pageSize: 10, //每页的记录行数（*）
+					queryParamsType: "limit",
+					sortable: true, //是否启用排序 
+					sortOrder: "desc", //排序方式
+					search: false, //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+					locale: "zh-CN",
+					strictSearch: true,
+					showColumns: true, //是否显示所有的列
+					minimumCountColumns: 2, //最少允许的列数
+					clickToSelect: true, //是否启用点击选中行
+					uniqueId: "BxId", //每一行的唯一标识，一般为主键列
+					showToggle: false, //是否显示详细视图和列表视图的切换按钮
+					cardView: false, //是否显示详细视图
+					detailView: true, //是否显示父子表
+					showExport: true,
+					idField: "id",
+					//exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel'],
+					exportTypes: ['excel'],
+					clickToSelect: true,
+					contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+					searchAlign: "left",
+					buttonsAlign: "right",
+					toolbarAlign: "right",
+					columns: [//{
+							//checkbox: true
+						//},
+						{
+							field: "BxAccountId",
+							title: "序号",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function(value, row, index) {
+								/*return index + 1;*/
+								var pageSize=$('#bx_account').bootstrapTable('getOptions').pageSize;//通过表的#id 可以得到每页多少条
+                							var pageNumber=$('#bx_account').bootstrapTable('getOptions').pageNumber;//通过表的#id 可以得到当前第几页
+                							return pageSize * (pageNumber - 1) + index + 1;    //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
+							}
+						},
+						{
+							field: "CreateTime",
+							title: "创建时间",
+							align: "center",
+							valign: "middle",
+							sortable: "true",
+							formatter: function(value) {
+								var str = value.replace("/Date(", "");
+								var txt = str.replace(")/", "");
+								return new Date(parseInt(txt)).toLocaleString();
+							}
+						},
+						{
+							field: "username",
+							title: "登录账户",
+							align: "center",
+							valign: "middle",
+							sortable: "true"
+						},
+						/*{
+							field: "password",
+							title: "登录密码",
+							align: "center",
+							valign: "middle"
+						},*/
+						{
+							field: "CorporateName",
+							title: "公司名称",
+							align: "center",
+							valign: "middle"
+						},
+						{
+							field: "Contacts",
+							title: "联系人",
+							align: "center",
+							valign: "middle"
+						},
+						{
+							field: "Phone",
+							title: "手机号码",
+							align: "center",
+							valign: "middle"
+						},
+						{
+							field: "Email",
+							title: "邮件地址",
+							align: "center",
+							valign: "middle"
+						},
+						{
+							field: "Address",
+							title: "详细地址",
+							align: "center",
+							valign: "middle"
+						},
+						{
+							field: "active",
+							title: "激活",
+							align: "center",
+							valign: "middle",
+							formatter: function(value) {
+								if(value) {
+									return "<i class='glyphicon glyphicon-ok'></i>";
+								} else {
+									return "<i class='glyphicon glyphicon-remove'></i>";
+								}
+							}
+						},
+						{
+							field: "BxAccountId",
+							title: "操作",
+							align: "center",
+							valign: "middle",
+							formatter: function(value) {
+								return "<button class='glyphicon glyphicon-edit opeicon' data-operation='editusers' data-value='" + value + "' title='修改'></button><button class='glyphicon glyphicon-trash opeicon' data-operation='deleteusers' data-value='" + value + "' title='删除'></button><button class='glyphicon glyphicon-pause opeicon' data-operation='forbidusers' data-value='" + value + "' title='启动/禁用'></button><button class='glyphicon glyphicon-list-alt opeicon' data-operation='detailusers' data-value='" + value + "' title='详情'><button class='glyphicon glyphicon-flash opeicon' data-operation='changepwdusers' data-value='" + value + "' title='修改密码'></button></button>"
+							}
+						}
+					],
+
+					onPageChange: function(size, number) {},
+					formatNoMatches: function() {
+						return '没有相关的数据哦！';
+					},
+
+					onLoadSuccess: function() {
+						//修改按钮	
+						$("button[data-operation='editusers']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "修改保险公司信息",
+								message: function(dialog) {
+
+									var $message = $('<div></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("edit", "BxAccount", new {area="admin" })' + '/' + id
+								},
+								buttons: [{
+									icon: "glyphicon glyphicon-ok",
+									label: "保存",
+									action: function(dialogItself) {
+										$.post($("#BxAccEdit").attr("action"), $("#BxAccEdit").serializeArray(), function(data) {
+											if(data.Status == 1) {
+												BootstrapDialog.show({
+													message: data.Message,
+													buttons: [{
+														icon: "glyphicon glyphicon-ok",
+														label: "确定",
+														action: function(dialogItself) {
+															$('#bx_account').bootstrapTable("refresh");
+															dialogItself.close();
+															addDialog.close();
+														}
+													}]
+
+												});
+											} else BootstrapDialog.alert(data.Message);
+										}, "json");
+										$("form").validate();
+									}
+								}, {
+									icon: "glyphicon glyphicon-remove",
+									label: "关闭",
+									action: function(dialogItself) {
+										dialogItself.close();
+									}
+								}]
+							});
+							addDialog.open();
+						});
+						//删除按钮
+						$("button[data-operation='deleteusers']").click(function() {
+							var id = $(this).attr("data-value");
+							BootstrapDialog.confirm("你确定要删除" + $(this).parent().parent().find("td").eq(2).text() + "吗？", function(result) {
+								if(result) {
+									$.post("@Url.Action("delete", "BxAccount", new {area="admin"})", {id: id},function(data) {
+										if(data.Status == 1) {
+											BootstrapDialog.show({
+												message: "删除成功",
+												buttons: [{
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogItself) {
+														$('#bx_account').bootstrapTable("refresh");
+														dialogItself.close();
+													}
+												}]
+											});
+										}
+									});
+								}
+							});
+						});
+						//禁用按钮
+						$("button[data-operation='forbidusers']").click(function() {
+							var id = $(this).attr("data-value");
+							/*alert(id);*/
+							BootstrapDialog.confirm("你确定要启用/禁用" + $(this).parent().parent().find("td").eq(2).text() + "吗？", function(result) {
+								if(result) {
+									$.post("@Url.Action("forbid", "BxAccount", new {area="admin"})", {id: id}, function(data) {
+										if(data.Status == 1) {
+											BootstrapDialog.show({
+												message: "启用/禁成功",
+												buttons: [{
+													icon: "glyphicon glyphicon-ok",
+													label: "确定",
+													action: function(dialogItself) {
+														$('#bx_account').bootstrapTable("refresh");
+														
+														dialogItself.close();
+													}
+												}]
+											});
+										}
+									});
+								}
+							});
+						});
+						//详情按钮	
+						$("button[data-operation='detailusers']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "保险公司信息详情",
+								message: function(dialog) {
+
+									var $message = $('<div></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("detail", "BxAccount", new {area="admin" })' + '/' + id
+								},
+								buttons: [{
+									icon: "glyphicon glyphicon-remove",
+									label: "关闭",
+									action: function(dialogItself) {
+										dialogItself.close();
+									}
+								}]
+							});
+							addDialog.open();
+						});
+						//修改密码按钮	
+						$("button[data-operation='changepwdusers']").click(function() {
+							var id = $(this).attr("data-value");
+							var addDialog = new BootstrapDialog({
+								title: "修改保险公司密码",
+								message: function(dialog) {
+
+									var $message = $('<div></div>');
+									var pageToLoad = dialog.getData('pageToLoad');
+									$message.load(pageToLoad);
+
+									return $message;
+								},
+								data: {
+									'pageToLoad': '@Url.Action("Changepwd", "BxAccount", new {area="admin" })' + '/' + id
+								},
+								buttons: [{
+									icon: "glyphicon glyphicon-plus",
+									label: "保存",
+									action: function(dialogItself) {
+										$.post($("#BxAccChangepwd").attr("action"), $("#BxAccChangepwd").serializeArray(), function(data) {
+											if(data.Status == 1) {
+												BootstrapDialog.show({
+													message: data.Message,
+													buttons: [{
+														icon: "glyphicon glyphicon-ok",
+														label: "确定",
+														action: function(dialogItself) {
+															$('#bx_account').bootstrapTable("refresh");
+															dialogItself.close();
+															addDialog.close();
+														}
+													}]
+
+												});
+											} else BootstrapDialog.alert(data.Message);
+										}, "json");
+										$("form").validate();
+									}
+								}, {
+									icon: "glyphicon glyphicon-remove",
+									label: "关闭",
+									action: function(dialogItself) {
+										dialogItself.close();
+									}
+								}]
+							});
+							addDialog.open();
+						});
+
+					}
+
+				});
+
+				$(window).resize(function() {
+					$('#bx_account').bootstrapTable('resetView');
+				});
+
+				//添加按钮
+				$("#bxaccount_add").click(function() {
+					var addDialog = new BootstrapDialog({
+						title: "新增保险公司信息",
+						message: function(dialog) {
+
+							var $message = $('<div></div>');
+							var pageToLoad = dialog.getData('pageToLoad');
+							$message.load(pageToLoad);
+
+							return $message;
+						},
+						data: {
+							'pageToLoad': '@Url.Action("Add", "BxAccount", new {area="admin" })'
+						},
+						buttons: [{
+							icon: "glyphicon glyphicon-plus",
+							label: "添加",
+							action: function(dialogItself) {
+								$.post($("#BxAccAdd").attr("action"), $("#BxAccAdd").serializeArray(), function(data) {
+									if(data.Status == 1) {
+										BootstrapDialog.show({
+											message: data.Message,
+											buttons: [{
+												icon: "glyphicon glyphicon-ok",
+												label: "确定",
+												action: function(dialogItself) {
+													$('#bx_account').bootstrapTable("refresh");
+													dialogItself.close();
+													addDialog.close();
+												}
+											}]
+
+										});
+									} else BootstrapDialog.alert(data.Message);
+								}, "json");
+								$("form").validate();
+							}
+						}, {
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+					});
+					addDialog.open();
+				});
+				//添加按钮结束
+
+			});
+			Date.prototype.toLocaleString = function() {
+				return this.getFullYear() + "-" + (this.getMonth() + 1) + "-" + this.getDate() + " " + this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds();
+    			};
+			function getIdSelections() {
+				return $.map($('#bx_account').bootstrapTable('getSelections'), function(row) {
+					return row.id
+				});
+			}
+
+			
+			//得到查询的参数
+			queryParams = function(params) {
+				var temp = { //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+					//limit: params.limit,   //页面大小
+					limit: params.pageSize, //页面大小
+					offset: params.pageNumber, //页码
+
+				};
+				return temp;
+			};
+
+			function responseHandler(res) {
+				$.each(res.rows, function(i, row) {
+					row.state = $.inArray(row.id, selections) !== -1;
+				});
+				return res;
+			}
+
+			function detailFormatter(index, row) {
+				var html = [];
+				$.each(row, function(key, value) {
+					html.push('<p><b>' + key + ':</b> ' + value + '</p>');
+				});
+				return html.join('');
+			}
+		</script>

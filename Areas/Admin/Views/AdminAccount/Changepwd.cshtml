@@ -1,0 +1,80 @@
+﻿@model Bx_Web.Models.ChangePwdViewModel
+
+@{
+    ViewBag.Title = "修改后台密码";
+    Layout = null;
+}
+
+	<script src="~/Scripts/jquery.validate.js"></script>
+    	<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    	<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+	<script type="text/javascript">		
+			function OnSuccessfresh(data) {
+				if(data.Status) {
+					var BootstrapDialog1=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+								window.location.href = data.Url;
+							}
+						}]
+					});
+					BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+					BootstrapDialog1.open();
+				} else {
+					var BootstrapDialog2=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+					});
+					BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+					BootstrapDialog2.open();
+				}
+			}
+
+			function OnFailure() {
+				var BootstrapDialog0=new BootstrapDialog({
+					title:"提示",
+					message: "Connection error",
+					buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+				});
+				BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+				BootstrapDialog0.open();
+			}
+    </script> 
+
+		<div class="wrapper">
+			<div class="register-box">
+				<div class="register-content">
+					@using (Ajax.BeginForm("Changepwd", "AdminAccount", new AjaxOptions { Url = Url.Action("Changepwd", "AdminAccount", new { area = "Admin" }), OnSuccess = "OnSuccessfresh", OnFailure = "OnFailure" }, new { id="AdminChangepwd"})){
+					<div class="form-group">
+						<label>原密码</label>@Html.PasswordFor(m => m.Oldpwd) @Html.ValidationMessageFor(m=>m.Oldpwd)
+					</div>
+					<div class="form-group">
+						<label>新密码</label>@Html.PasswordFor(m => m.Newpwd) @Html.ValidationMessageFor(m=>m.Newpwd)
+					</div>
+					<div class="form-group">
+						<label>新密码确认</label>@Html.PasswordFor(m => m.Repwd) @Html.ValidationMessageFor(m=>m.Repwd)
+					</div>
+					}
+				</div>
+			</div>
+		</div>

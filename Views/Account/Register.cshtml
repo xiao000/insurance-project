@@ -1,0 +1,142 @@
+﻿@model Bx_Web.Models.RegisterViewModel
+
+@{
+    ViewBag.Title = "Register";
+    Layout = null;
+}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>保险系统-注册界面</title>
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="stylesheet" href="~/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="~/bootstrap/css/bootstrap-dialog.css" />
+    <link rel="apple-touch-icon" sizes="76x76" href="">
+    <link rel="icon" type="image/png" sizes="96x96" href="">
+    <script src="~/js/jquery-2.1.0.min.js"></script>
+    <script src="~/bootstrap/js/bootstrap.js"></script>
+    <script src="~/bootstrap/js/bootstrap-dialog.js"></script>
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript">　
+			function OnSuccess(data) {
+				if(data.Status) {
+					var BootstrapDialog1=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							action: function(dialogItself) {
+								dialogItself.close();
+								window.location.href = data.Url;
+							}
+						}]
+					});
+					BootstrapDialog1.setType(BootstrapDialog.TYPE_SUCCESS);
+					BootstrapDialog1.open();					
+				} else {
+					var BootstrapDialog2=new BootstrapDialog({
+						title:"提示",
+						message: data.Message,
+						buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+								$("#verificationcode").attr("src", "@Url.Action("VerificationCode")?" + new Date());
+							}
+						}]
+					});
+					BootstrapDialog2.setType(BootstrapDialog.TYPE_DANGER);
+					BootstrapDialog2.open();					
+				}
+			}
+
+			function OnFailure() {
+				var BootstrapDialog0=new BootstrapDialog({
+					title:"提示",
+					message: "Connection error",
+					buttons: [{
+							icon: "glyphicon glyphicon-remove",
+							label: "关闭",
+							cssClass:"btn-danger",
+							action: function(dialogItself) {
+								dialogItself.close();
+							}
+						}]
+				});
+				BootstrapDialog0.setType(BootstrapDialog.TYPE_DANGER);
+				BootstrapDialog0.open();
+			}
+    </script>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="register-box register-border">
+            <div class="register-top"><span></span>欢迎注册</div>
+            <div class="register-content text-center">
+                <span>已有账号？@Html.ActionLink("请登录", "login")</span>
+                @using (Ajax.BeginForm(new AjaxOptions { Url = Url.Action("Register"), OnSuccess = "OnSuccess", OnFailure = "OnFailure" }))
+                {
+                    @Html.AntiForgeryToken();
+                    <div class="form-group">
+                        <label>用户名</label>@Html.TextBoxFor(m => m.username, new { placeholder = "6-20个英文数字" })
+                        @Html.ValidationMessageFor(m=>m.username)
+                        
+                    </div>
+                    <div class="form-group">
+                        <label>密码</label>@Html.PasswordFor(m => m.password)
+                        @Html.ValidationMessageFor(m=>m.password)
+                    </div>
+                    <div class="form-group">
+                        <label>密码确认</label>@Html.PasswordFor(m => m.repassword)
+                        @Html.ValidationMessageFor(m=>m.repassword)
+                    </div>
+                    <div class="form-group">
+                        <label>联系人</label>@Html.TextBoxFor(m => m.Contacts, new { placeholder = "2-20个字符" })
+                        @Html.ValidationMessageFor(m=>m.Contacts)
+                    </div>
+                    <div class="form-group">
+                        <label>手机号码</label>@Html.TextBoxFor(m => m.Phone, new { placeholder = "手机号码" })
+                        @Html.ValidationMessageFor(m=>m.Phone)
+                    </div>
+                    <div class="form-group">
+                        <label>公司名称</label>@Html.TextBoxFor(m=>m.CorporateName)
+                        @Html.ValidationMessageFor(m=>m.CorporateName)
+                    </div>
+	      <div class="form-group">
+                        <label>验证码</label>@Html.TextBoxFor(m => m.validatecode)  <img id="verificationcode" title="点击刷新" src="@Url.Action("VerificationCode")" style="cursor:pointer" />
+                        @Html.ValidationMessageFor(m=>m.validatecode)
+
+                    </div>
+                    <div class="form-group">
+                        <label>邮箱地址</label>@Html.TextBoxFor(m=>m.Email)
+                        @Html.ValidationMessageFor(m=>m.Email)
+                    </div>
+                    <div class="form-group">
+                        <label>详细地址</label>@Html.TextAreaFor(m=>m.Address)
+                        @Html.ValidationMessageFor(m=>m.Address)
+                    </div>
+                    
+    <input type="submit" value="注册" class="btn btnsty btn-register" />
+                   
+                    
+                }
+                
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+    $("#verificationcode").click(function () {
+        $("#verificationcode").attr("src", "@Url.Action("VerificationCode")?" + new Date());
+    })
+    </script>
+</body>
+</html>
+
